@@ -48,16 +48,10 @@ export default function CreatePage() {
     setGenerating(true);
     setResult(null);
     try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, style, placement }),
-      });
-      const data = (await res.json()) as { concept?: string; source?: string };
       const pool = STYLE_CONCEPTS[style] ?? STYLE_CONCEPTS["Irezumi / Japanese"];
-      const concept = data.concept ?? pool[hash(prompt + placement) % pool.length];
-      await new Promise((r) => setTimeout(r, data.source === "ai" ? 0 : 1400));
-      setResult({ concept, stencil: concept, source: data.source ?? "curated" });
+      const concept = pool[hash(prompt + placement) % pool.length];
+      await new Promise((r) => setTimeout(r, 1400));
+      setResult({ concept, stencil: concept, source: "curated" });
       setView("concept");
     } finally {
       setGenerating(false);
