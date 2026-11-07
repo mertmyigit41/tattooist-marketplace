@@ -8,9 +8,11 @@ import {
 } from "@firebase/rules-unit-testing";
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   setDoc,
+  updateDoc,
   writeBatch,
 } from "firebase/firestore";
 
@@ -126,6 +128,59 @@ test("the request owner can accept a bid", async () => {
   batch.update(doc(db, "live_requests", "request-1"), { status: "booked" });
   batch.update(doc(db, "live_bids", "bid-1"), { status: "accepted" });
   await assertSucceeds(batch.commit());
+});
+
+test("verified admins can approve artist profiles", async () => {
+  await seedLiveData();
+  const db = environment.authenticatedContext("admin", {
+    email: "mertmyigit@gmail.com",
+    email_verified: true,
+  }).firestore();
+  await assertSucceeds(updateDoc(doc(db, "live_profiles", "pending-artist"), {
+    approved: true,
+  }));
+  assert.equal(
+    (await getDoc(doc(db, "live_profiles", "pending-artist"))).data().approved,
+    true,
+  );
+});
+
+test("admins cannot change profile fields other than approval", async () => {
+  await seedLiveData();
+  const db = environment.authenticatedContext("admin", {
+    email: "mertmyigit@gmail.com",
+    email_verified: true,
+  }).firestore();
+  await assertFails(updateDoc(doc(db, "live_profiles", "pending-artist"), {
+    approved: true,
+    name: "Changed name",
+  }));
+  await assertFails(updateDoc(doc(db, "live_profiles", "pending-artist"), {
+    name: "Changed name",
+  }));
+});
+
+test("an unverified admin email cannot approve profiles or delete them", async () => {
+  await seedLiveData();
+  const db = environment.authenticatedContext("unverified-admin", {
+    email: "mertmyigit@gmail.com",
+    email_verified: false,
+  }).firestore();
+  await assertFails(updateDoc(doc(db, "live_profiles", "pending-artist"), {
+    approved: true,
+  }));
+  await assertFails(deleteDoc(doc(db, "live_profiles", "pending-artist")));
+});
+
+test("verified admins can delete live profiles, requests, and bids", async () => {
+  await seedLiveData();
+  const db = environment.authenticatedContext("admin", {
+    email: "mertmyigit@gmail.com",
+    email_verified: true,
+  }).firestore();
+  await assertSucceeds(deleteDoc(doc(db, "live_profiles", "pending-artist")));
+  await assertSucceeds(deleteDoc(doc(db, "live_requests", "request-1")));
+  await assertSucceeds(deleteDoc(doc(db, "live_bids", "bid-1")));
 });
 
 test("demo collections remain open to anonymous reads and writes", async () => {

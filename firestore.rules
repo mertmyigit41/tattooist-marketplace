@@ -10,6 +10,13 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.keys().hasAll(["email", "email_verified"])
+        && request.auth.token.email in ["mertmyigit@gmail.com"]
+        && request.auth.token.email_verified == true;
+    }
+
     function isSelf(id) {
       return signedIn() && request.auth.uid == id;
     }
@@ -34,11 +41,17 @@ service cloud.firestore {
           && request.resource.data.reviewCount == 0
         )
       );
-      allow update: if isSelf(id)
-        && request.resource.data.role == resource.data.role
-        && !request.resource.data.diff(resource.data).affectedKeys()
-          .hasAny(["approved", "isPro", "rating", "reviewCount"]);
-      allow delete: if false;
+      allow update: if (
+          isAdmin()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["approved"])
+          && request.resource.data.approved is bool
+        ) || (
+          isSelf(id)
+          && request.resource.data.role == resource.data.role
+          && !request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny(["approved", "isPro", "rating", "reviewCount"])
+        );
+      allow delete: if isAdmin();
     }
 
     match /live_requests/{id} {
@@ -47,7 +60,8 @@ service cloud.firestore {
       allow update: if signedIn()
         && resource.data.clientId == request.auth.uid
         && request.resource.data.clientId == resource.data.clientId;
-      allow delete: if signedIn() && resource.data.clientId == request.auth.uid;
+      allow delete: if isAdmin()
+        || (signedIn() && resource.data.clientId == request.auth.uid);
     }
 
     match /live_bids/{id} {
@@ -68,7 +82,8 @@ service cloud.firestore {
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status"])
         )
       );
-      allow delete: if signedIn() && resource.data.artistId == request.auth.uid;
+      allow delete: if isAdmin()
+        || (signedIn() && resource.data.artistId == request.auth.uid);
     }
   }
 }

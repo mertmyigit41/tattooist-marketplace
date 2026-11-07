@@ -57,6 +57,7 @@ export default function OnboardingPage() {
     const flag = COUNTRIES.find((entry) => entry.name === country)?.flag ?? "";
     const portfolioUrls = role === "artist" ? urls.map((url) => url.trim()).filter(Boolean).slice(0, 6) : [];
     const profileData = {
+      createdAt: Date.now(),
       role,
       name: name.trim(),
       city: city.trim(),

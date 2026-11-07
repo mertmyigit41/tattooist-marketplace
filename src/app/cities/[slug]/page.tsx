@@ -6,6 +6,8 @@ import { Badge, Button, Card, CountryTag } from "@/components/ui";
 import { cityForSlug, CITIES, CITY_PRICE_ROWS } from "@/lib/cities";
 import { FALLBACK_PROFILE_AVAILABILITY, SEED_PROFILES } from "@/lib/seed";
 import { eur } from "@/lib/utils";
+import { IS_LIVE } from "@/lib/mode";
+import { LiveCityStudios } from "@/components/LiveCityStudios";
 
 export const dynamicParams = false;
 
@@ -98,6 +100,9 @@ export default async function CityPricePage({
         </div>
       </section>
 
+      {IS_LIVE ? (
+        <LiveCityStudios cityName={city.name} citySlug={city.slug} />
+      ) : (
       <section className="space-y-4">
         <div>
           <h2 className="text-3xl">Studios in {city.name}</h2>
@@ -130,6 +135,7 @@ export default async function CityPricePage({
           })}
         </div>
       </section>
+      )}
 
       <Card className="flex flex-col items-start justify-between gap-4 p-6 sm:flex-row sm:items-center">
         <div>

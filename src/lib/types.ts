@@ -23,6 +23,7 @@ export interface Profile {
   responseHours?: number;
   nextOpening?: string;
   approved?: boolean;
+  createdAt?: number;
 }
 
 export interface TattooRequest {

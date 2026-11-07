@@ -1,10 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Database, Droplets, Image as ImageIcon, LayoutList, MapPin, Radio, Sparkles, Users } from "lucide-react";
+import { ChevronDown, Database, Droplets, Image as ImageIcon, LayoutList, MapPin, Radio, ShieldCheck, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { isAdminUser } from "@/lib/admin";
 import { signOutUser, useAuth } from "@/lib/auth";
 import { IS_LIVE } from "@/lib/mode";
 import { PERSONAS } from "@/lib/personas";
@@ -24,6 +25,7 @@ const LINKS = [
   { href: "/artists", label: "Studios", icon: Users },
   { href: "/cities", label: "Cities", icon: MapPin },
   { href: "/inspiration", label: "Inspiration", icon: ImageIcon },
+  { href: "/admin", label: "Admin", icon: ShieldCheck },
 ];
 
 export function Logo() {
@@ -43,6 +45,7 @@ export function Navbar() {
   const pathname = usePathname();
   const { user, profile, loading: authLoading } = useAuth();
   const { persona, setPersonaId, hydrated } = usePersona();
+  const links = LINKS.filter(({ href }) => href !== "/admin" || (IS_LIVE && isAdminUser(user)));
   const [open, setOpen] = useState(false);
   const [seeding, setSeeding] = useState(false);
   const [seeded, setSeeded] = useState(false);
@@ -74,7 +77,7 @@ export function Navbar() {
         <Logo />
 
         <nav className="hidden items-center gap-1 lg:flex">
-          {LINKS.map(({ href, label, icon: Icon }) => {
+          {links.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || pathname.startsWith(href + "/");
             return (
               <Link
@@ -245,7 +248,7 @@ export function Navbar() {
       </div>
 
       <nav className="flex gap-1 overflow-x-auto border-t border-zinc-800/60 px-3 py-2 lg:hidden">
-        {LINKS.map(({ href, label, icon: Icon }) => {
+        {links.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
           return (
             <Link
