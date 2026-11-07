@@ -21,7 +21,7 @@ import {
   SESSION_PLANS,
   TOURIST_PERKS,
 } from "@/lib/utils";
-import { Button, Modal, Pill, Spinner } from "./ui";
+import { Button, CountryTag, Modal, Pill, Spinner } from "./ui";
 
 const MIN_NOTE_CHARS = 40;
 
@@ -61,9 +61,9 @@ export function BidModal(props: BidModalProps) {
       wide
       title={
         <span className="flex items-center gap-2">
-          <span className="text-amber-400">🎨</span> Submit Fixed-Price Quote
+          Quote a fixed price
           <span className="hidden text-sm font-normal text-zinc-500 sm:inline">
-            · as {persona.name} {persona.flag}
+            · as {persona.name} <CountryTag flag={persona.flag} />
           </span>
         </span>
       }
@@ -183,7 +183,7 @@ function BidForm({
           <div className="truncate font-semibold">{request.title}</div>
           <div className="text-xs text-zinc-400">
             {request.clientName} · {request.clientCity}, {request.clientCountry}{" "}
-            {request.clientFlag} · {request.bodyPart} · {request.style}
+            <CountryTag flag={request.clientFlag} /> · {request.bodyPart} · {request.style}
           </div>
           <div className="mt-1 text-xs text-zinc-400">
             Client&apos;s local baseline:{" "}

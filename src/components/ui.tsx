@@ -3,7 +3,17 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { cn, countryCode } from "@/lib/utils";
+
+export function CountryTag({ flag }: { flag: string }) {
+  const code = countryCode(flag);
+  if (!code) return null;
+  return (
+    <span className="inline-block rounded-sm border border-zinc-700 px-1 font-mono text-[10px] leading-4 tracking-wider text-zinc-400">
+      {code}
+    </span>
+  );
+}
 
 export function Button({
   className,

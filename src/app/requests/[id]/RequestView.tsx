@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, Gavel, MapPin, Radio, Ruler } from "lucide-react";
+import { ArrowLeft, Check, Gavel, MapPin, Radio, Ruler } from "lucide-react";
 import Link from "next/link";
 import { useRouteId } from "@/lib/useRouteId";
 import { useMemo, useState } from "react";
@@ -12,7 +12,7 @@ import { ImageToggle } from "@/components/ImageToggle";
 import { Lightbox } from "@/components/Lightbox";
 import { bidTotal, QuoteCard } from "@/components/QuoteCard";
 import { TravelBadge } from "@/components/RequestCard";
-import { Badge, Button, Card, Spinner } from "@/components/ui";
+import { Badge, Button, Card, CountryTag, Spinner } from "@/components/ui";
 import { useBids, useRequest } from "@/lib/hooks";
 import { usePersona } from "@/lib/persona";
 import type { Bid } from "@/lib/types";
@@ -57,14 +57,14 @@ export function RequestView() {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <TravelBadge request={request} />
-              {request.status === "booked" && <Badge className="border-emerald-500/40 bg-emerald-500/10 text-emerald-300">✅ Booked</Badge>}
+              {request.status === "booked" && <Badge className="border-emerald-500/40 bg-emerald-500/10 text-emerald-300"><Check className="h-3 w-3" /> Booked</Badge>}
             </div>
             <h1 className="mt-3 text-2xl font-black sm:text-3xl">{request.title}</h1>
             <p className="mt-2 text-zinc-400">{request.prompt}</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-300">
-            <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-zinc-500" /> {request.clientName} · {request.clientCity}, {request.clientCountry} {request.clientFlag}</span>
+            <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-zinc-500" /> {request.clientName} · {request.clientCity}, {request.clientCountry} <CountryTag flag={request.clientFlag} /></span>
             <span className="flex items-center gap-1.5"><Ruler className="h-4 w-4 text-zinc-500" /> {request.bodyPart} · {request.size}</span>
             <Badge className="border-red-500/30 bg-red-500/10 text-red-200">{request.style}</Badge>
           </div>

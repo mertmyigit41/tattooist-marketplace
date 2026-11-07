@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { BadgeCheck, MapPin } from "lucide-react";
 import Link from "next/link";
 import { ProUpsell } from "@/components/ProUpsell";
-import { Badge, Card, Spinner, Stars } from "@/components/ui";
+import { Badge, Card, CountryTag, Spinner, Stars } from "@/components/ui";
 import { useProfiles } from "@/lib/hooks";
 import { eur } from "@/lib/utils";
 
@@ -15,7 +15,7 @@ export default function ArtistsPage() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-3xl font-black sm:text-4xl">Artist Directory</h1>
+        <h1 className="text-3xl font-black sm:text-4xl">Studios</h1>
         <p className="mt-1 text-zinc-400">Verified studios across 6 countries competing for your design.</p>
       </header>
 
@@ -40,9 +40,9 @@ export default function ArtistsPage() {
                       <div>
                         <h3 className="flex items-center gap-2 font-bold">
                           {p.name}
-                          {p.isPro && <BadgeCheck className="h-4 w-4 text-sky-400" />}
+                          {p.isPro && <BadgeCheck className="h-4 w-4 text-red-500" aria-label="Verified studio" />}
                         </h3>
-                        <div className="mt-0.5 flex items-center gap-1 text-xs text-zinc-400"><MapPin className="h-3 w-3" /> {p.city}, {p.country} {p.countryFlag}</div>
+                        <div className="mt-0.5 flex items-center gap-1 text-xs text-zinc-400"><MapPin className="h-3 w-3" /> {p.city}, {p.country} <CountryTag flag={p.countryFlag} /></div>
                       </div>
                       <div className="text-right">
                         <Stars rating={p.rating} />

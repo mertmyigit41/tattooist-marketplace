@@ -1,11 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Filter, Radio } from "lucide-react";
+import { Check, Filter, Radio } from "lucide-react";
 import { useMemo, useState } from "react";
 import { BidModal } from "@/components/BidModal";
 import { RequestCard } from "@/components/RequestCard";
-import { Pill, Spinner } from "@/components/ui";
+import { CountryTag, Pill, Spinner } from "@/components/ui";
 import { useBidCounts, useRequests } from "@/lib/hooks";
 import { usePersona } from "@/lib/persona";
 import type { TattooRequest } from "@/lib/types";
@@ -42,10 +42,10 @@ export default function FeedPage() {
             <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" /></span>
             Live · Firestore real-time
           </div>
-          <h1 className="text-3xl font-black sm:text-4xl">Live Open Requests</h1>
+          <h1 className="text-3xl font-black sm:text-4xl">Open requests</h1>
           <p className="mt-1 text-zinc-400">
             {isArtist ? (
-              <>Viewing as <b className="text-amber-300">{persona.name}</b> {persona.flag} — submit fixed-price quotes on any request.</>
+              <>Quoting as {persona.name} <CountryTag flag={persona.flag} />. Fixed price, plan, date, three pieces.</>
             ) : (
               <>Clients worldwide posting designs. Switch to an Artist persona to bid.</>
             )}
@@ -57,8 +57,8 @@ export default function FeedPage() {
       <div className="flex flex-col gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-2">
           <Pill accent="zinc" active={quick === "all"} onClick={() => setQuick("all")}>All Requests</Pill>
-          <Pill accent="emerald" active={quick === "worldwide"} onClick={() => setQuick("worldwide")}>🌍 Open Worldwide (Tattoo Tourism)</Pill>
-          <Pill accent="amber" active={quick === "high"} onClick={() => setQuick("high")}>💰 High Budget (Full Sleeve / Back)</Pill>
+          <Pill accent="zinc" active={quick === "worldwide"} onClick={() => setQuick("worldwide")}>Will fly anywhere</Pill>
+          <Pill accent="zinc" active={quick === "high"} onClick={() => setQuick("high")}>Big pieces (sleeve / back)</Pill>
         </div>
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-zinc-500" />
@@ -109,7 +109,7 @@ export default function FeedPage() {
             exit={{ opacity: 0, y: 30 }}
             className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full border border-emerald-500/50 bg-zinc-950 px-5 py-2.5 text-sm font-medium text-emerald-300 shadow-[0_0_30px_rgba(16,185,129,0.35)]"
           >
-            ✅ {toast}
+            <Check className="mr-1 inline h-4 w-4" /> {toast}
           </motion.div>
         )}
       </AnimatePresence>

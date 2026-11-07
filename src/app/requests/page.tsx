@@ -4,7 +4,7 @@ import { Plus, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 import { RequestCard } from "@/components/RequestCard";
-import { Button, Spinner } from "@/components/ui";
+import { Button, CountryTag, Spinner } from "@/components/ui";
 import { useBidCounts, useRequests } from "@/lib/hooks";
 import { usePersona } from "@/lib/persona";
 
@@ -21,7 +21,7 @@ export default function MyRequestsPage() {
         <div>
           <h1 className="text-3xl font-black sm:text-4xl">My Requests</h1>
           <p className="mt-1 text-zinc-400">
-            Requests posted by <b className="text-zinc-200">{persona.name}</b> {persona.flag}. Quote counts update live.
+            Requests posted by <b className="text-zinc-200">{persona.name}</b> <CountryTag flag={persona.flag} />. Quote counts update live.
           </p>
         </div>
         <Link href="/create">

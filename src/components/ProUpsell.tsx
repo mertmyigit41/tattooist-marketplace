@@ -20,27 +20,23 @@ export function ProUpsell() {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-zinc-900 to-red-600/10 p-6 sm:p-8"
+        className="rounded-lg border-2 border-dashed border-zinc-700 bg-zinc-950 paper p-6 sm:p-8"
       >
-        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-amber-500/20 blur-3xl" />
-        <div className="relative flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+        <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
           <div className="max-w-2xl">
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-300">
-              <Crown className="h-3.5 w-3.5" /> B2B · Inqfy Pro
-            </div>
-            <h2 className="text-2xl font-bold sm:text-3xl">Are you a Tattoo Studio?</h2>
+            <div className="mb-2"><span className="stamp text-xs text-red-500">For studios</span></div>
+            <h2 className="text-2xl font-bold sm:text-3xl">Run a studio? Stop paying 20% commission.</h2>
             <p className="mt-2 text-zinc-300">
-              Join <span className="font-semibold text-amber-300">Inqfy Pro for $250/year</span> — 0% commission, unlimited access to high-budget
-              international tattoo tourists who are ready to fly to you.
+              Inqfy Pro is $250/year flat. 0% commission, priority in the feed, and clients who already budgeted for the flight.
             </p>
           </div>
-          <Button size="lg" onClick={() => setOpen(true)} className="shrink-0 bg-amber-400 text-zinc-950 hover:bg-amber-300 shadow-[0_0_28px_rgba(245,158,11,0.4)]">
+          <Button variant="outline" size="lg" onClick={() => setOpen(true)} className="shrink-0">
             <Crown className="h-5 w-5" /> Join Inqfy Pro
           </Button>
         </div>
       </motion.div>
 
-      <Modal open={open} onClose={() => setOpen(false)} title={<span className="flex items-center gap-2"><Crown className="h-5 w-5 text-amber-400" /> Inqfy Pro Studio Membership</span>}>
+      <Modal open={open} onClose={() => setOpen(false)} title={<span className="flex items-center gap-2"><Crown className="h-5 w-5 text-red-500" /> Inqfy Pro Studio Membership</span>}>
         {done ? (
           <div className="py-6 text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400">
@@ -52,14 +48,14 @@ export function ProUpsell() {
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5 text-center">
+            <div className="rounded-2xl border border-zinc-700 bg-zinc-950 p-5 text-center">
               <div className="text-5xl font-black">$250<span className="text-lg font-semibold text-zinc-400">/year</span></div>
               <div className="mt-1 text-sm text-zinc-400">vs. 15–20% commission on comparable marketplaces</div>
             </div>
             <ul className="space-y-3">
               {PERKS.map(({ icon: Icon, text }) => (
                 <li key={text} className="flex items-start gap-3 text-sm">
-                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-amber-300">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-zinc-200">
                     <Icon className="h-3.5 w-3.5" />
                   </span>
                   {text}
@@ -69,7 +65,7 @@ export function ProUpsell() {
             <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 text-xs text-zinc-400">
               Example ROI: one international full-sleeve booking at €750 covers 3 years of membership.
             </div>
-            <Button size="lg" className="w-full bg-amber-400 text-zinc-950 hover:bg-amber-300" onClick={() => setDone(true)}>
+            <Button variant="violet" size="lg" className="w-full" onClick={() => setDone(true)}>
               Start Pro Membership (simulated)
             </Button>
           </div>

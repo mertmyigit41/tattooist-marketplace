@@ -6,7 +6,7 @@ import { useState } from "react";
 import { markBooked } from "@/lib/actions";
 import { useProfile } from "@/lib/hooks";
 import type { Bid, TattooRequest } from "@/lib/types";
-import { eur } from "@/lib/utils";
+import { eur, stripEmoji } from "@/lib/utils";
 import { bidTotal } from "./QuoteCard";
 import { Button, Modal, Spinner } from "./ui";
 
@@ -20,7 +20,7 @@ export function AcceptModal({ bid, request, onClose }: { bid: Bid | null; reques
   const total = bidTotal(bid);
   const savings = request.estimatedLocalPriceEur - total;
   const text = encodeURIComponent(
-    `Hi ${bid.artistName}! I'm ${request.clientName} from ${request.clientCity} — I'm accepting your Inqfy quote of ${eur(bid.priceEur)} for "${request.title}" (${bid.sessionPlan}, from ${bid.availableDate}). Let's lock in the dates!`,
+    `Hi ${bid.artistName}! I'm ${request.clientName} from ${request.clientCity} — I'm accepting your Inqfy quote of ${eur(bid.priceEur)} for "${request.title}" (${stripEmoji(bid.sessionPlan)}, from ${bid.availableDate}). Let's lock in the dates!`,
   );
   const wa = `https://wa.me/${(artist?.whatsapp ?? "").replace(/\D/g, "")}?text=${text}`;
 
@@ -63,10 +63,12 @@ export function AcceptModal({ bid, request, onClose }: { bid: Bid | null; reques
       ) : (
         <div className="space-y-5">
           <div className="flex items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800 text-2xl">{bid.artistFlag}</div>
+            <div className="flex h-12 w-12 items-center justify-center rounded-md bg-zinc-100 font-display text-xl text-zinc-950">
+              {bid.artistName.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase()}
+            </div>
             <div>
               <div className="font-bold">{bid.artistName}</div>
-              <div className="text-xs text-zinc-400">📍 {bid.artistCity}, {bid.artistCountry} · {bid.sessionPlan} · from {bid.availableDate}</div>
+              <div className="text-xs text-zinc-400">{bid.artistCity}, {bid.artistCountry} · {stripEmoji(bid.sessionPlan)} · from {bid.availableDate}</div>
             </div>
           </div>
 

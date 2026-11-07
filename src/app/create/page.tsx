@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Globe2, MapPin, Plane, Rocket, Sparkles, Wand2 } from "lucide-react";
+import { ArrowRight, Globe2, MapPin, Plane, Sparkles, Wand2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { ImageToggle, StencilImage } from "@/components/ImageToggle";
@@ -90,15 +90,13 @@ export default function CreatePage() {
   return (
     <div className="mx-auto max-w-5xl space-y-8">
       <header>
-        <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-300">
-          <Sparkles className="h-3.5 w-3.5" /> AI Tattoo & Stencil Studio
-        </div>
-        <h1 className="text-3xl font-black sm:text-4xl">Design it. Stencil it. Put the world&apos;s studios to work.</h1>
-        <p className="mt-2 text-zinc-400">Step 1 generates concept art + an artist-ready stencil. Step 2 launches your request to the global marketplace.</p>
+        <div className="mb-2"><span className="stamp text-sm text-red-500">Design studio</span></div>
+        <h1 className="text-3xl font-black sm:text-4xl">Describe it. We draw it. Studios bid on it.</h1>
+        <p className="mt-2 text-zinc-400">Get a concept and a clean stencil, then post it to studios worldwide.</p>
       </header>
 
       <Card className="p-6 sm:p-8">
-        <StepLabel n={1} title="Design Generator" accent="violet" />
+        <StepLabel n={1} title="Draw the design" />
         <label className="mt-5 block text-sm font-semibold text-zinc-200">Your tattoo idea</label>
         <div className="mt-2 flex flex-col gap-2 sm:flex-row">
           <input
@@ -126,7 +124,7 @@ export default function CreatePage() {
             <div className="mb-2 text-sm font-semibold text-zinc-200">Body Placement & Scale</div>
             <div className="flex flex-wrap gap-2">
               {PLACEMENTS.map((p) => (
-                <Pill key={p.id} active={placement === p.id} accent="amber" onClick={() => setPlacement(p.id)}>
+                <Pill key={p.id} active={placement === p.id} accent="violet" onClick={() => setPlacement(p.id)}>
                   {p.label}
                 </Pill>
               ))}
@@ -137,7 +135,7 @@ export default function CreatePage() {
         <div className="mt-6">
           <Button variant="violet" size="lg" onClick={generate} disabled={!prompt.trim() || generating} className="w-full sm:w-auto">
             {generating ? <Spinner className="border-white" /> : <Sparkles className="h-5 w-5" />}
-            {generating ? "Generating concept & stencil…" : "Generate Tattoo & Stencil"}
+            {generating ? "Drawing…" : "Draw concept + stencil"}
           </Button>
         </div>
 
@@ -156,17 +154,15 @@ export default function CreatePage() {
                   <button onClick={() => setView("concept")} className={cn("rounded-full px-4 py-1.5 font-medium transition", view === "concept" ? "bg-red-500 text-white" : "text-zinc-400")}>Tattoo Concept Art</button>
                   <button onClick={() => setView("stencil")} className={cn("rounded-full px-4 py-1.5 font-medium transition", view === "stencil" ? "bg-white text-zinc-950" : "text-zinc-400")}>Artist-Ready Stencil</button>
                 </div>
-                <span className="text-xs text-zinc-500">
-                  {result.source === "ai" ? "Generated with AI image model" : "Curated concept + high-contrast stencil filter (no API key configured)"}
-                </span>
+                <span className="text-xs text-zinc-500">Curated concept + stencil filter (demo)</span>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className={cn("overflow-hidden rounded-2xl border transition", view === "concept" ? "border-red-500 shadow-[0_0_30px_rgba(220,38,38,0.3)]" : "border-zinc-800 opacity-70")}>
+                <div className={cn("overflow-hidden rounded-2xl border transition", view === "concept" ? "border-zinc-100" : "border-zinc-800 opacity-70")}>
                   <div className="flex items-center justify-between px-4 py-2 text-xs font-semibold uppercase tracking-wider text-red-300">Concept Art <span className="text-zinc-500">{style}</span></div>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={result.concept} alt="Concept" className="aspect-square w-full object-cover" />
                 </div>
-                <div className={cn("overflow-hidden rounded-2xl border transition", view === "stencil" ? "border-white shadow-[0_0_30px_rgba(255,255,255,0.15)]" : "border-zinc-800 opacity-70")}>
+                <div className={cn("overflow-hidden rounded-2xl border transition", view === "stencil" ? "border-zinc-100" : "border-zinc-800 opacity-70")}>
                   <div className="flex items-center justify-between px-4 py-2 text-xs font-semibold uppercase tracking-wider text-zinc-300">Stencil · B&W Line Art <span className="text-zinc-500">{placement}</span></div>
                   <StencilImage src={result.stencil} alt="Stencil" className="aspect-square w-full" />
                 </div>
@@ -180,7 +176,7 @@ export default function CreatePage() {
         {result && !generating && (
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}>
             <Card className="p-6 sm:p-8">
-              <StepLabel n={2} title="Post to Global Marketplace" accent="emerald" />
+              <StepLabel n={2} title="Post it to studios" />
 
               <div className="mt-5 grid gap-6 lg:grid-cols-[1fr_300px]">
                 <div className="space-y-5">
@@ -191,25 +187,22 @@ export default function CreatePage() {
                         active={travelMode === "local_only"}
                         onClick={() => setTravelMode("local_only")}
                         icon={<MapPin className="h-5 w-5" />}
-                        title={`Local Only`}
-                        text={`${persona.city}, ${persona.country} ${persona.flag}`}
-                        accent="zinc"
+                        title="Local only"
+                        text={`${persona.city}, ${persona.country}`}
                       />
                       <ModeCard
                         active={travelMode === "specific_destination"}
                         onClick={() => setTravelMode("specific_destination")}
                         icon={<Plane className="h-5 w-5" />}
-                        title="Planned Trip"
-                        text="Specify destination & dates"
-                        accent="sky"
+                        title="Planned trip"
+                        text="Where and when"
                       />
                       <ModeCard
                         active={travelMode === "open_worldwide"}
                         onClick={() => setTravelMode("open_worldwide")}
                         icon={<Globe2 className="h-5 w-5" />}
-                        title="Global Arbitrage Mode"
-                        text="I'll fly anywhere if price & portfolio beat local rates"
-                        accent="emerald"
+                        title="Anywhere"
+                        text="I'll fly if the total beats home"
                       />
                     </div>
                     {travelMode === "specific_destination" && (
@@ -219,7 +212,7 @@ export default function CreatePage() {
                         value={destination}
                         onChange={(e) => setDestination(e.target.value)}
                         placeholder='e.g. "Thailand - Nov 2026"'
-                        className="mt-3 w-full rounded-xl border border-sky-500/40 bg-zinc-950 px-4 py-2.5 text-sm outline-none focus:border-sky-400"
+                        className="mt-3 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-2.5 text-sm outline-none focus:border-zinc-300"
                       />
                     )}
                   </div>
@@ -237,9 +230,9 @@ export default function CreatePage() {
                     <div className="text-3xl font-black">{eur(localPrice)}</div>
                     <div className="text-xs text-zinc-500">{placement} · {sizeFor(placement)} · {style}</div>
                   </div>
-                  <Button variant="emerald" size="lg" onClick={launch} disabled={launching} className="mt-auto w-full">
-                    {launching ? <Spinner className="border-zinc-900" /> : <Rocket className="h-5 w-5" />}
-                    Launch Request & Get Quotes <ArrowRight className="h-4 w-4" />
+                  <Button variant="violet" size="lg" onClick={launch} disabled={launching} className="mt-auto w-full">
+                    {launching && <Spinner className="border-white" />}
+                    Post it — get quotes <ArrowRight className="h-4 w-4" />
                   </Button>
                   {error && <p className="text-xs text-rose-400">{error}</p>}
                 </div>
@@ -252,26 +245,21 @@ export default function CreatePage() {
   );
 }
 
-function StepLabel({ n, title, accent }: { n: number; title: string; accent: "violet" | "emerald" }) {
+function StepLabel({ n, title }: { n: number; title: string }) {
   return (
     <div className="flex items-center gap-3">
-      <span className={cn("flex h-8 w-8 items-center justify-center rounded-full text-sm font-black", accent === "violet" ? "bg-red-500 text-white" : "bg-emerald-500 text-zinc-950")}>{n}</span>
-      <h2 className="text-xl font-bold">Step {n} · {title}</h2>
+      <span className="font-display text-4xl text-red-500">{String(n).padStart(2, "0")}</span>
+      <h2 className="text-xl font-bold">{title}</h2>
     </div>
   );
 }
 
-function ModeCard({ active, onClick, icon, title, text, accent }: { active: boolean; onClick: () => void; icon: React.ReactNode; title: string; text: string; accent: "zinc" | "sky" | "emerald" }) {
-  const activeCls = {
-    zinc: "border-zinc-300 bg-zinc-100/10",
-    sky: "border-sky-400 bg-sky-500/10 shadow-[0_0_20px_rgba(56,189,248,0.25)]",
-    emerald: "border-emerald-400 bg-emerald-500/10 shadow-[0_0_20px_rgba(16,185,129,0.3)]",
-  }[accent];
+function ModeCard({ active, onClick, icon, title, text }: { active: boolean; onClick: () => void; icon: React.ReactNode; title: string; text: string }) {
   return (
-    <button type="button" onClick={onClick} className={cn("rounded-xl border p-3 text-left transition", active ? activeCls : "border-zinc-800 bg-zinc-950 hover:border-zinc-600")}>
-      <div className={cn("mb-1", active ? (accent === "emerald" ? "text-emerald-300" : accent === "sky" ? "text-sky-300" : "text-zinc-100") : "text-zinc-500")}>{icon}</div>
+    <button type="button" onClick={onClick} className={cn("rounded-xl border p-3 text-left transition", active ? "border-zinc-100 bg-zinc-100 text-zinc-950" : "border-zinc-800 bg-zinc-950 hover:border-zinc-600")}>
+      <div className={cn("mb-1", active ? "text-zinc-950" : "text-zinc-500")}>{icon}</div>
       <div className="text-sm font-semibold">{title}</div>
-      <div className="text-xs text-zinc-400">{text}</div>
+      <div className={cn("text-xs", active ? "text-zinc-700" : "text-zinc-400")}>{text}</div>
     </button>
   );
 }

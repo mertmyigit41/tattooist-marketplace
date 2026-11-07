@@ -6,6 +6,26 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function countryCode(flag: string): string {
+  const indicators = Array.from(flag, (character) => character.codePointAt(0)!);
+  if (
+    indicators.length !== 2 ||
+    indicators.some((code) => code < 0x1f1e6 || code > 0x1f1ff)
+  ) {
+    return "";
+  }
+  return String.fromCharCode(...indicators.map((code) => code - 0x1f1e6 + 65));
+}
+
+export function stripEmoji(s: string): string {
+  return s
+    .replace(
+      /^[\p{Extended_Pictographic}\p{Emoji_Modifier}\uFE0F\u200D\s]+|[\p{Extended_Pictographic}\p{Emoji_Modifier}\uFE0F\u200D\s]+$/gu,
+      "",
+    )
+    .trim();
+}
+
 export function eur(n: number) {
   return `€${Math.round(n).toLocaleString("en-IE")}`;
 }
@@ -55,30 +75,27 @@ export function flightEstimate(clientCountry: string, artistCountry: string) {
 
 export const TRAVEL_MODE_META: Record<
   TravelMode,
-  { label: string; short: string; emoji: string; className: string }
+  { label: string; short: string; className: string }
 > = {
   local_only: {
     label: "Local Only",
     short: "Local Only",
-    emoji: "📍",
-    className: "border-zinc-700 bg-zinc-800/80 text-zinc-200",
+    className: "border-zinc-700 text-zinc-300",
   },
   specific_destination: {
     label: "Planned Trip",
     short: "Planned Trip",
-    emoji: "✈️",
-    className: "border-sky-500/40 bg-sky-500/10 text-sky-300",
+    className: "border-zinc-500 text-zinc-100",
   },
   open_worldwide: {
     label: "Open Worldwide",
-    short: "Willing to Fly Worldwide",
-    emoji: "🌍",
-    className: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
+    short: "Will fly anywhere",
+    className: "border-red-500/60 text-red-300",
   },
 };
 
 export const SESSION_PLANS = [
-  "⚡ 3 Consecutive Full Days (Tourist Friendly)",
+  "3 Consecutive Full Days (Tourist Friendly)",
   "2 Consecutive Full Days",
   "2 Full Days",
   "1 Session (4 Hours)",
@@ -86,9 +103,9 @@ export const SESSION_PLANS = [
 ];
 
 export const TOURIST_PERKS = [
-  "✈️ Free Airport Pickup",
-  "🏨 Hotel Partner Discount",
-  "⚡ Back-to-Back Sessions Guaranteed",
+  "Free Airport Pickup",
+  "Hotel Partner Discount",
+  "Back-to-Back Sessions Guaranteed",
 ];
 
 export function timeAgo(ts: number) {

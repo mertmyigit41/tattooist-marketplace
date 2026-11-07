@@ -1,11 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BadgeCheck, CalendarDays, Flame, MessageCircle, Plane, UserRound, ZoomIn } from "lucide-react";
+import { BadgeCheck, CalendarDays, MapPin, MessageCircle, UserRound, ZoomIn } from "lucide-react";
 import Link from "next/link";
 import type { Bid, TattooRequest } from "@/lib/types";
-import { cn, eur, timeAgo } from "@/lib/utils";
-import { Badge, Button, Card, Stars } from "./ui";
+import { cn, eur, stripEmoji, timeAgo } from "@/lib/utils";
+import { Badge, Button, Card, CountryTag, Stars } from "./ui";
 
 export function bidTotal(b: Bid) {
   return b.priceEur + b.estimatedRoundtripFlightEur;
@@ -41,39 +41,34 @@ export function QuoteCard({
     >
       <Card
         className={cn(
-          "relative overflow-hidden transition-all duration-700",
-          isNew && "border-emerald-400 ring-2 ring-emerald-400/60 shadow-[0_0_40px_rgba(16,185,129,0.35)]",
-          isBest && !isNew && "border-emerald-500/50",
+          "relative overflow-hidden",
+          isNew && "border-red-500",
         )}
       >
         {isNew && (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="absolute right-4 top-4 z-10 flex items-center gap-1.5 rounded-full bg-emerald-500 px-3 py-1 text-xs font-bold text-zinc-950 shadow-lg"
-          >
-            <span className="h-2 w-2 animate-ping rounded-full bg-zinc-950" /> NEW QUOTE · LIVE
-          </motion.div>
+          <span className="absolute left-0 top-0 z-10 rounded-sm bg-red-600 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-white">
+            New quote
+          </span>
         )}
-        {isBest && !isNew && (
-          <div className="absolute right-4 top-4 z-10 flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-300">
-            <Flame className="h-3.5 w-3.5" /> Best Value
-          </div>
+        {isBest && (
+          <span className="stamp absolute right-4 top-4 z-10 text-xs text-emerald-400">
+            Best total
+          </span>
         )}
 
         <div className="grid gap-5 p-5 lg:grid-cols-[1fr_280px]">
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-2xl">{bid.artistFlag}</div>
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-zinc-100 font-display text-xl text-zinc-950">
+                {bid.artistName.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase()}
+              </div>
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="text-lg font-bold leading-tight">{bid.artistName}</h3>
-                  <Badge className="border-sky-500/40 bg-sky-500/10 text-sky-300">
-                    <BadgeCheck className="h-3.5 w-3.5" /> Verified Pro
-                  </Badge>
+                  <BadgeCheck className="h-4 w-4 text-red-500" aria-label="Verified studio" />
                 </div>
                 <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-zinc-400">
-                  <span>📍 {bid.artistCity}, {bid.artistCountry} {bid.artistFlag}</span>
+                  <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" /> {bid.artistCity}, {bid.artistCountry} <CountryTag flag={bid.artistFlag} /></span>
                   <Stars rating={bid.artistRating} />
                   <span className="text-xs text-zinc-500">{timeAgo(bid.createdAt)}</span>
                 </div>
@@ -81,13 +76,13 @@ export function QuoteCard({
             </div>
 
             <div className="flex flex-wrap gap-1.5">
-              <Badge className="border-amber-500/40 bg-amber-500/10 text-amber-200">{bid.sessionPlan}</Badge>
+              <Badge>{stripEmoji(bid.sessionPlan)}</Badge>
               <Badge>
                 <CalendarDays className="h-3 w-3" /> From {bid.availableDate}
               </Badge>
               {bid.touristPerks.map((p) => (
-                <Badge key={p} className="border-emerald-500/30 bg-emerald-500/10 text-emerald-200">
-                  {p}
+                <Badge key={p}>
+                  {stripEmoji(p)}
                 </Badge>
               ))}
             </div>
@@ -115,47 +110,43 @@ export function QuoteCard({
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4">
-            <div>
-              <div className="text-[11px] uppercase tracking-wider text-zinc-500">Tattoo price</div>
-              <div className="text-3xl font-black">{eur(bid.priceEur)}</div>
+          <div className="flex flex-col gap-3 rounded-md border border-zinc-800 bg-zinc-950 p-4 font-mono text-sm">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-zinc-400">tattoo</span>
+              <span>{eur(bid.priceEur)}</span>
             </div>
-            <div className="space-y-1 text-sm">
-              <Row label={<span className="flex items-center gap-1"><Plane className="h-3.5 w-3.5" /> Est. roundtrip flight</span>} value={abroad ? eur(bid.estimatedRoundtripFlightEur) : "€0 (local)"} muted />
-              <Row label={<span className="font-semibold text-zinc-200">Total landed cost</span>} value={<span className="font-bold">{eur(total)}</span>} />
-              <Row label={`vs. ${request.clientCity} local`} value={eur(request.estimatedLocalPriceEur)} muted strike />
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-zinc-400">
+                {abroad ? `flight ${request.clientCity}–${bid.artistCity}` : "flight — local"}
+              </span>
+              <span>{eur(bid.estimatedRoundtripFlightEur)}</span>
+            </div>
+            <div className="border-t border-dashed border-zinc-700" />
+            <div className="flex items-end justify-between gap-2">
+              <span className="text-zinc-400">total</span>
+              <span className="font-display text-4xl text-zinc-50 not-mono">{eur(total)}</span>
+            </div>
+            <div className="flex items-center justify-between gap-2 text-zinc-500">
+              <s className="decoration-red-600">{request.clientCity} local</s>
+              <s className="decoration-red-600">{eur(request.estimatedLocalPriceEur)}</s>
             </div>
 
             {saves ? (
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.15, type: "spring" }}
-                className="animate-pulse-glow rounded-xl border border-emerald-400/60 bg-emerald-500/15 p-3 text-center"
-              >
-                <div className="text-base font-black text-emerald-300 text-glow-emerald">
-                  🔥 SAVE {eur(savings)}
-                  {abroad ? " EVEN AFTER FLIGHTS!" : "!"}
-                </div>
-                <div className="mt-1 text-[11px] leading-snug text-emerald-200/80">
-                  {abroad
-                    ? `Tattoo ${eur(bid.priceEur)} + Est. ${request.clientCity}↔${bid.artistCity} Flight ${eur(bid.estimatedRoundtripFlightEur)} vs. ${eur(request.estimatedLocalPriceEur)} Local`
-                    : `Tattoo ${eur(bid.priceEur)} vs. ${eur(request.estimatedLocalPriceEur)} ${request.clientCity} estimate`}
-                </div>
-              </motion.div>
+              <div className="stamp text-2xl text-red-500">Saves {eur(savings)}</div>
             ) : (
-              <div className="rounded-xl border border-zinc-700 bg-zinc-800/50 p-3 text-center text-sm text-zinc-300">
-                {savings === 0 ? "Matches local baseline" : `${eur(-savings)} above local baseline`}
+              <div className="font-mono text-xs text-zinc-500">
+                {eur(-savings)} above local
               </div>
             )}
+            {saves && abroad && <div className="font-mono text-xs text-zinc-500">flight included</div>}
 
             <div className="mt-auto flex flex-col gap-2 pt-1">
               <Button variant="whatsapp" onClick={() => onAccept(bid)} disabled={request.status === "booked"}>
-                <MessageCircle className="h-4 w-4" /> Accept Quote & Connect on WhatsApp
+                <MessageCircle className="h-4 w-4" /> Accept · WhatsApp
               </Button>
               <Link href={`/artists/${bid.artistId}`}>
                 <Button variant="outline" className="w-full">
-                  <UserRound className="h-4 w-4" /> View Full Studio Profile
+                  <UserRound className="h-4 w-4" /> Studio profile
                 </Button>
               </Link>
             </div>
@@ -163,14 +154,5 @@ export function QuoteCard({
         </div>
       </Card>
     </motion.div>
-  );
-}
-
-function Row({ label, value, muted, strike }: { label: React.ReactNode; value: React.ReactNode; muted?: boolean; strike?: boolean }) {
-  return (
-    <div className={cn("flex items-center justify-between gap-2", muted && "text-zinc-400")}>
-      <span>{label}</span>
-      <span className={cn(strike && "line-through decoration-rose-500/70")}>{value}</span>
-    </div>
   );
 }

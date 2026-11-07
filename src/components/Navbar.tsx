@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Database, Droplets, LayoutList, Radio, Sparkles, UserRound, Users } from "lucide-react";
+import { ChevronDown, Database, Droplets, LayoutList, MapPin, Radio, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -9,7 +9,11 @@ import { PERSONAS } from "@/lib/personas";
 import { usePersona } from "@/lib/persona";
 import { seedDemoData } from "@/lib/seed";
 import { cn } from "@/lib/utils";
-import { Spinner } from "./ui";
+import { CountryTag, Spinner } from "./ui";
+
+function initials(name: string) {
+  return name.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+}
 
 const LINKS = [
   { href: "/create", label: "Design Studio", icon: Sparkles },
@@ -90,7 +94,7 @@ export function Navbar() {
             className="hidden items-center gap-1.5 rounded-lg border border-zinc-800 px-2.5 py-2 text-xs text-zinc-400 transition hover:border-zinc-600 hover:text-zinc-200 sm:flex"
           >
             {seeding ? <Spinner className="h-3.5 w-3.5" /> : <Database className="h-3.5 w-3.5" />}
-            {seeded ? "Seeded ✓" : "Reset Demo Data"}
+            {seeded ? "Seeded" : "Reset Demo Data"}
           </button>
 
           <div ref={ref} className="relative">
@@ -105,11 +109,10 @@ export function Navbar() {
             >
               <span
                 className={cn(
-                  "flex h-7 w-7 items-center justify-center rounded-full text-sm",
-                  persona.role === "artist" ? "bg-amber-500/20" : "bg-red-500/20",
+                  "flex h-7 w-7 items-center justify-center rounded-sm bg-zinc-100 font-display text-sm text-zinc-950",
                 )}
               >
-                {persona.flag}
+                {initials(persona.name)}
               </span>
               <span className="hidden text-left sm:block">
                 <span className="block text-[10px] uppercase tracking-wider text-zinc-400">
@@ -148,17 +151,16 @@ export function Navbar() {
                       >
                         <span
                           className={cn(
-                            "flex h-9 w-9 items-center justify-center rounded-full text-lg",
-                            p.role === "artist" ? "bg-amber-500/15" : "bg-red-500/15",
+                            "flex h-9 w-9 items-center justify-center rounded-sm bg-zinc-100 font-display text-lg text-zinc-950",
                           )}
                         >
-                          {p.role === "artist" ? "🎨" : <UserRound className="h-4 w-4 text-red-300" />}
+                          {initials(p.name)}
                         </span>
                         <span className="flex-1">
                           <span className="block text-[10px] uppercase tracking-wider text-zinc-500">{p.label}</span>
                           <span className="block font-semibold">{p.name}</span>
                           <span className="block text-xs text-zinc-400">
-                            📍 {p.city}, {p.country} {p.flag}
+                            <MapPin className="mr-1 inline h-3 w-3" /> {p.city}, {p.country} <CountryTag flag={p.flag} />
                           </span>
                         </span>
                         {active && <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399]" />}

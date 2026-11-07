@@ -1,12 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Gavel, MessageSquareQuote, Plane } from "lucide-react";
+import { Gavel, MapPin, MessageSquareQuote } from "lucide-react";
 import Link from "next/link";
 import type { TattooRequest } from "@/lib/types";
 import { cn, eur, timeAgo, TRAVEL_MODE_META } from "@/lib/utils";
 import { ImageToggle } from "./ImageToggle";
-import { Badge, Button, Card } from "./ui";
+import { Badge, Button, Card, CountryTag } from "./ui";
 
 export function TravelBadge({ request, className }: { request: TattooRequest; className?: string }) {
   const meta = TRAVEL_MODE_META[request.travelMode];
@@ -18,7 +18,7 @@ export function TravelBadge({ request, className }: { request: TattooRequest; cl
         : meta.short;
   return (
     <Badge className={cn(meta.className, className)}>
-      {meta.emoji} {text}
+      {text}
     </Badge>
   );
 }
@@ -55,7 +55,7 @@ export function RequestCard({
                 {request.title}
               </Link>
               <div className="mt-0.5 text-xs text-zinc-400">
-                {request.clientName} · 📍 {request.clientCity}, {request.clientCountry} {request.clientFlag} · {timeAgo(request.createdAt)}
+                {request.clientName} · <MapPin className="inline h-3 w-3" /> {request.clientCity}, {request.clientCountry} <CountryTag flag={request.clientFlag} /> · {timeAgo(request.createdAt)}
               </div>
             </div>
             {request.status === "booked" && <Badge className="border-emerald-500/40 bg-emerald-500/10 text-emerald-300">Booked</Badge>}
@@ -86,12 +86,12 @@ export function RequestCard({
 
           {isArtist ? (
             <Button variant="emerald" onClick={() => onBid?.(request)} disabled={request.status === "booked"} className="w-full">
-              <Gavel className="h-4 w-4" /> Submit Quote (Bid)
+              <Gavel className="h-4 w-4" /> Quote this
             </Button>
           ) : (
             <Link href={`/requests/${request.id}`}>
               <Button variant="outline" className="w-full">
-                <Plane className="h-4 w-4" /> View Quotes & Arbitrage
+                See quotes
               </Button>
             </Link>
           )}
