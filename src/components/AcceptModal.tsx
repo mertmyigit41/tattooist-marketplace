@@ -25,9 +25,11 @@ export function AcceptModal({ bid, request, onClose }: { bid: Bid | null; reques
   const wa = `https://wa.me/${(artist?.whatsapp ?? "").replace(/\D/g, "")}?text=${text}`;
 
   async function confirm() {
+    const selectedBid = bid;
+    if (!selectedBid) return;
     setBusy(true);
     try {
-      await markBooked(request.id);
+      await markBooked(request.id, selectedBid.id);
       setConfirmed(true);
     } finally {
       setBusy(false);

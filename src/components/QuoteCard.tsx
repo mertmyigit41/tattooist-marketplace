@@ -18,6 +18,7 @@ export function QuoteCard({
   request,
   isNew,
   isBest,
+  canAccept = true,
   onAccept,
   onZoom,
 }: {
@@ -25,6 +26,7 @@ export function QuoteCard({
   request: TattooRequest;
   isNew?: boolean;
   isBest?: boolean;
+  canAccept?: boolean;
   onAccept: (b: Bid) => void;
   onZoom: (urls: string[], index: number) => void;
 }) {
@@ -148,9 +150,11 @@ export function QuoteCard({
             {saves && abroad && <div className="font-mono text-xs text-zinc-500">flight included</div>}
 
             <div className="mt-auto flex flex-col gap-2 pt-1">
-              <Button variant="whatsapp" onClick={() => onAccept(bid)} disabled={request.status === "booked"}>
-                <MessageCircle className="h-4 w-4" /> Accept · WhatsApp
-              </Button>
+              {canAccept && (
+                <Button variant="whatsapp" onClick={() => onAccept(bid)} disabled={request.status === "booked"}>
+                  <MessageCircle className="h-4 w-4" /> Accept · WhatsApp
+                </Button>
+              )}
               <Link href={`/artists/${bid.artistId}`}>
                 <Button variant="outline" className="w-full">
                   <UserRound className="h-4 w-4" /> Studio profile

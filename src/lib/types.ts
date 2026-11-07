@@ -22,6 +22,7 @@ export interface Profile {
   tagline?: string;
   responseHours?: number;
   nextOpening?: string;
+  approved?: boolean;
 }
 
 export interface TattooRequest {
@@ -62,6 +63,7 @@ export interface Bid {
   estimatedRoundtripFlightEur: number;
   touristPerks: string[];
   createdAt: number;
+  status?: "accepted";
 }
 
 export interface Persona {

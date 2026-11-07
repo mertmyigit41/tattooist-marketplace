@@ -1,8 +1,10 @@
 "use client";
 
-import { Database } from "lucide-react";
+import { Database, ExternalLink } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { isEmulator } from "@/lib/firebase";
+import { IS_LIVE } from "@/lib/mode";
 import { seedDemoData } from "@/lib/seed";
 
 export function Footer() {
@@ -15,20 +17,31 @@ export function Footer() {
           <span className="ml-3">© {new Date().getFullYear()} · Istanbul · Dublin · Bangkok · Bali. The ink is permanent, the price is fixed.</span>
           {isEmulator && <span className="ml-2 rounded bg-amber-500/10 px-1.5 py-0.5 text-amber-400">Firestore emulator</span>}
         </span>
-        <button
-          disabled={busy}
-          onClick={async () => {
-            setBusy(true);
-            try {
-              await seedDemoData({ reset: true });
-            } finally {
-              setBusy(false);
-            }
-          }}
-          className="flex items-center gap-1.5 hover:text-zinc-300 disabled:opacity-50"
-        >
-          <Database className="h-3.5 w-3.5" /> {busy ? "Seeding…" : "Reset / Seed Demo Data"}
-        </button>
+        {IS_LIVE ? (
+          <Link href="https://demo.inqfy.app" className="flex items-center gap-1.5 hover:text-zinc-300">
+            <ExternalLink className="h-3.5 w-3.5" /> Demo
+          </Link>
+        ) : (
+          <div className="flex flex-wrap items-center gap-4">
+            <Link href="https://inqfy.app" className="text-zinc-400 hover:text-zinc-200">
+              This is the demo — real app at inqfy.app
+            </Link>
+            <button
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                try {
+                  await seedDemoData({ reset: true });
+                } finally {
+                  setBusy(false);
+                }
+              }}
+              className="flex items-center gap-1.5 hover:text-zinc-300 disabled:opacity-50"
+            >
+              <Database className="h-3.5 w-3.5" /> {busy ? "Seeding…" : "Reset / Seed Demo Data"}
+            </button>
+          </div>
+        )}
       </div>
     </footer>
   );

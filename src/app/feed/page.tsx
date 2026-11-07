@@ -27,7 +27,7 @@ export default function FeedPage() {
 function FeedContent() {
   const { requests, loading } = useRequests();
   const { counts, bumped } = useBidCounts();
-  const { isArtist, persona } = usePersona();
+  const { isArtist, isApprovedArtist, persona } = usePersona();
   const searchParams = useSearchParams();
   const q = (searchParams.get("q") ?? "").trim();
   const city = (searchParams.get("city") ?? "").trim();
@@ -124,7 +124,7 @@ function FeedContent() {
         <motion.div layout className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           <AnimatePresence>
             {filtered.map((r) => (
-              <RequestCard key={r.id} request={r} bidCount={counts[r.id] ?? 0} bumped={bumped.has(r.id)} isArtist={isArtist} onBid={setBidTarget} />
+              <RequestCard key={r.id} request={r} bidCount={counts[r.id] ?? 0} bumped={bumped.has(r.id)} isArtist={isArtist} isApprovedArtist={isApprovedArtist} onBid={setBidTarget} />
             ))}
           </AnimatePresence>
         </motion.div>

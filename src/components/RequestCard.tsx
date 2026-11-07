@@ -28,12 +28,14 @@ export function RequestCard({
   bidCount,
   bumped,
   isArtist,
+  isApprovedArtist = true,
   onBid,
 }: {
   request: TattooRequest;
   bidCount: number;
   bumped?: boolean;
   isArtist: boolean;
+  isApprovedArtist?: boolean;
   onBid?: (r: TattooRequest) => void;
 }) {
   return (
@@ -84,7 +86,11 @@ export function RequestCard({
             </motion.div>
           </div>
 
-          {isArtist ? (
+          {isArtist && !isApprovedArtist ? (
+            <div className="rounded-sm border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-center text-xs text-amber-200">
+              Your studio is pending approval
+            </div>
+          ) : isArtist ? (
             <Button variant="emerald" onClick={() => onBid?.(request)} disabled={request.status === "booked"} className="w-full">
               <Gavel className="h-4 w-4" /> Quote this
             </Button>

@@ -5,11 +5,13 @@ import { ChevronDown, Database, Droplets, Image as ImageIcon, LayoutList, MapPin
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { signOutUser, useAuth } from "@/lib/auth";
+import { IS_LIVE } from "@/lib/mode";
 import { PERSONAS } from "@/lib/personas";
 import { usePersona } from "@/lib/persona";
 import { seedDemoData } from "@/lib/seed";
 import { cn } from "@/lib/utils";
-import { CountryTag, Spinner } from "./ui";
+import { Button, CountryTag, Spinner } from "./ui";
 
 function initials(name: string) {
   return name.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
@@ -39,6 +41,7 @@ export function Logo() {
 
 export function Navbar() {
   const pathname = usePathname();
+  const { user, profile, loading: authLoading } = useAuth();
   const { persona, setPersonaId, hydrated } = usePersona();
   const [open, setOpen] = useState(false);
   const [seeding, setSeeding] = useState(false);
@@ -90,15 +93,70 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={reseed}
-            title="Reset / Seed Demo Data"
-            className="hidden items-center gap-1.5 rounded-lg border border-zinc-800 px-2.5 py-2 text-xs text-zinc-400 transition hover:border-zinc-600 hover:text-zinc-200 sm:flex"
-          >
-            {seeding ? <Spinner className="h-3.5 w-3.5" /> : <Database className="h-3.5 w-3.5" />}
-            {seeded ? "Seeded" : "Reset Demo Data"}
-          </button>
+          {!IS_LIVE && (
+            <button
+              onClick={reseed}
+              title="Reset / Seed Demo Data"
+              className="hidden items-center gap-1.5 rounded-lg border border-zinc-800 px-2.5 py-2 text-xs text-zinc-400 transition hover:border-zinc-600 hover:text-zinc-200 sm:flex"
+            >
+              {seeding ? <Spinner className="h-3.5 w-3.5" /> : <Database className="h-3.5 w-3.5" />}
+              {seeded ? "Seeded" : "Reset Demo Data"}
+            </button>
+          )}
 
+          {IS_LIVE ? (
+            !user ? (
+              <Link href="/login">
+                <Button variant="outline" size="sm">{authLoading ? "Loading…" : "Sign in"}</Button>
+              </Link>
+            ) : !profile ? (
+              <Link href="/onboarding">
+                <Button variant="outline" size="sm">Complete setup</Button>
+              </Link>
+            ) : (
+              <div ref={ref} className="relative">
+                <button
+                  onClick={() => setOpen((value) => !value)}
+                  className="flex items-center gap-2 rounded-md border border-zinc-700 px-2.5 py-1.5 text-sm hover:border-zinc-500"
+                >
+                  <span className="flex h-7 w-7 items-center justify-center rounded-sm bg-zinc-100 font-display text-sm text-zinc-950">
+                    {initials(profile.name)}
+                  </span>
+                  <span className="hidden text-left sm:block">
+                    <span className="block text-[10px] uppercase tracking-wider text-zinc-400">
+                      {profile.role === "artist" ? "Studio" : "Client"}
+                    </span>
+                    <span className="block max-w-32 truncate font-semibold">{profile.name}</span>
+                  </span>
+                  <ChevronDown className={cn("h-4 w-4 text-zinc-400 transition", open && "rotate-180")} />
+                </button>
+                <AnimatePresence>
+                  {open && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                      className="absolute right-0 mt-2 w-56 rounded-md border border-zinc-800 bg-zinc-950 p-2 shadow-2xl"
+                    >
+                      <div className="px-3 py-2 text-xs text-zinc-400">{profile.name}</div>
+                      <div className="px-3 pb-2 text-[10px] uppercase tracking-wider text-zinc-500">
+                        {profile.role === "artist" ? "Studio account" : "Client account"}
+                      </div>
+                      <button
+                        onClick={async () => {
+                          setOpen(false);
+                          await signOutUser();
+                        }}
+                        className="w-full rounded-sm px-3 py-2 text-left text-sm text-zinc-300 hover:bg-zinc-900"
+                      >
+                        Sign out
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )
+          ) : (
           <div ref={ref} className="relative">
             <button
               onClick={() => setOpen((o) => !o)}
@@ -182,6 +240,7 @@ export function Navbar() {
               )}
             </AnimatePresence>
           </div>
+          )}
         </div>
       </div>
 

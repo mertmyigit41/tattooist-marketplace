@@ -13,6 +13,7 @@ import { useMemo, useState } from "react";
 import { submitBid } from "@/lib/actions";
 import { useProfile } from "@/lib/hooks";
 import { usePersona } from "@/lib/persona";
+import { IS_LIVE } from "@/lib/mode";
 import type { TattooRequest } from "@/lib/types";
 import {
   cn,
@@ -53,7 +54,7 @@ type BidModalProps = {
 };
 
 export function BidModal(props: BidModalProps) {
-  const { persona } = usePersona();
+  const { persona, isApprovedArtist } = usePersona();
   return (
     <Modal
       open={props.open}
@@ -69,11 +70,13 @@ export function BidModal(props: BidModalProps) {
       }
     >
       {props.open && props.request && (
-        <BidForm
-          key={props.request.id + persona.id}
-          {...props}
-          request={props.request}
-        />
+        IS_LIVE && persona.role === "artist" && !isApprovedArtist
+          ? <div className="py-10 text-center text-amber-200">Your studio is pending approval</div>
+          : <BidForm
+              key={props.request.id + persona.id}
+              {...props}
+              request={props.request}
+            />
       )}
     </Modal>
   );

@@ -7,8 +7,13 @@ import { RequestCard } from "@/components/RequestCard";
 import { Button, CountryTag, Spinner } from "@/components/ui";
 import { useBidCounts, useRequests } from "@/lib/hooks";
 import { usePersona } from "@/lib/persona";
+import { LiveRoleGate } from "@/components/LiveRoleGate";
 
 export default function MyRequestsPage() {
+  return <LiveRoleGate role="client"><MyRequestsContent /></LiveRoleGate>;
+}
+
+function MyRequestsContent() {
   const { requests, loading } = useRequests();
   const { counts, bumped } = useBidCounts();
   const { persona, isArtist } = usePersona();

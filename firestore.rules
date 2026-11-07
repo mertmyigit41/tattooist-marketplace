@@ -5,5 +5,70 @@ service cloud.firestore {
     match /profiles/{id} { allow read, write: if true; }
     match /requests/{id} { allow read, write: if true; }
     match /bids/{id} { allow read, write: if true; }
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(id) {
+      return signedIn() && request.auth.uid == id;
+    }
+
+    function ownsRequest(requestId) {
+      return signedIn()
+        && get(/databases/$(database)/documents/live_requests/$(requestId)).data.clientId == request.auth.uid;
+    }
+
+    match /live_profiles/{id} {
+      allow read: if true;
+      allow create: if isSelf(id) && (
+        (
+          request.resource.data.role == "client"
+          && !request.resource.data.keys().hasAny(["approved", "isPro", "rating", "reviewCount"])
+        )
+        || (
+          request.resource.data.role == "artist"
+          && request.resource.data.approved == false
+          && request.resource.data.isPro == false
+          && request.resource.data.rating == 0
+          && request.resource.data.reviewCount == 0
+        )
+      );
+      allow update: if isSelf(id)
+        && request.resource.data.role == resource.data.role
+        && !request.resource.data.diff(resource.data).affectedKeys()
+          .hasAny(["approved", "isPro", "rating", "reviewCount"]);
+      allow delete: if false;
+    }
+
+    match /live_requests/{id} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.clientId == request.auth.uid;
+      allow update: if signedIn()
+        && resource.data.clientId == request.auth.uid
+        && request.resource.data.clientId == resource.data.clientId;
+      allow delete: if signedIn() && resource.data.clientId == request.auth.uid;
+    }
+
+    match /live_bids/{id} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.artistId == request.auth.uid
+        && get(/databases/$(database)/documents/live_profiles/$(request.auth.uid)).data.role == "artist"
+        && get(/databases/$(database)/documents/live_profiles/$(request.auth.uid)).data.approved == true;
+      allow update: if signedIn() && (
+        (
+          resource.data.artistId == request.auth.uid
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(["status"])
+        )
+        || (
+          ownsRequest(resource.data.requestId)
+          && getAfter(/databases/$(database)/documents/live_requests/$(resource.data.requestId)).data.status == "booked"
+          && request.resource.data.status == "accepted"
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status"])
+        )
+      );
+      allow delete: if signedIn() && resource.data.artistId == request.auth.uid;
+    }
   }
 }

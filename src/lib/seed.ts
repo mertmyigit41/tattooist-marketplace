@@ -8,6 +8,7 @@ import {
 } from "firebase/firestore";
 import { getDb } from "./firebase";
 import { AVATAR, IMG } from "./images";
+import { col, type CollectionName, IS_LIVE } from "./mode";
 import type { Bid, Profile, TattooRequest } from "./types";
 
 const now = Date.now();
@@ -353,13 +354,13 @@ export const SEED_BIDS: Bid[] = [
 ];
 
 export async function isSeeded(): Promise<boolean> {
-  const snap = await getDocs(query(collection(getDb(), "profiles"), limit(1)));
+  const snap = await getDocs(query(collection(getDb(), col("profiles")), limit(1)));
   return !snap.empty;
 }
 
-async function clearCollection(name: string) {
+async function clearCollection(name: CollectionName) {
   const db = getDb();
-  const snap = await getDocs(collection(db, name));
+  const snap = await getDocs(collection(db, col(name)));
   const chunks: typeof snap.docs[] = [];
   for (let i = 0; i < snap.docs.length; i += 400) chunks.push(snap.docs.slice(i, i + 400));
   for (const chunk of chunks) {
@@ -370,16 +371,18 @@ async function clearCollection(name: string) {
 }
 
 export async function seedDemoData({ reset = false }: { reset?: boolean } = {}) {
+  if (IS_LIVE) return false;
   const db = getDb();
   if (reset) {
-    await Promise.all(["bids", "requests", "profiles"].map(clearCollection));
+    const collections: CollectionName[] = ["bids", "requests", "profiles"];
+    await Promise.all(collections.map(clearCollection));
   } else if (await isSeeded()) {
     return false;
   }
   const batch = writeBatch(db);
-  SEED_PROFILES.forEach((p) => batch.set(doc(db, "profiles", p.id), p));
-  SEED_REQUESTS.forEach((r) => batch.set(doc(db, "requests", r.id), r));
-  SEED_BIDS.forEach((b) => batch.set(doc(db, "bids", b.id), b));
+  SEED_PROFILES.forEach((p) => batch.set(doc(db, col("profiles"), p.id), p));
+  SEED_REQUESTS.forEach((r) => batch.set(doc(db, col("requests"), r.id), r));
+  SEED_BIDS.forEach((b) => batch.set(doc(db, col("bids"), b.id), b));
   await batch.commit();
   return true;
 }

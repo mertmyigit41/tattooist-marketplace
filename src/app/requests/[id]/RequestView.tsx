@@ -15,6 +15,7 @@ import { TravelBadge } from "@/components/RequestCard";
 import { Badge, Button, Card, CountryTag, Spinner } from "@/components/ui";
 import { useBids, useRequest } from "@/lib/hooks";
 import { usePersona } from "@/lib/persona";
+import { IS_LIVE } from "@/lib/mode";
 import type { Bid } from "@/lib/types";
 import { eur } from "@/lib/utils";
 
@@ -24,7 +25,7 @@ export function RequestView() {
   const id = useRouteId();
   const request = useRequest(id);
   const { bids, newIds, loading } = useBids(id);
-  const { isArtist } = usePersona();
+  const { isArtist, isApprovedArtist, persona } = usePersona();
   const [sort, setSort] = useState<Sort>("best");
   const [accepting, setAccepting] = useState<Bid | null>(null);
   const [bidOpen, setBidOpen] = useState(false);
@@ -46,6 +47,7 @@ export function RequestView() {
         Request not found. <Link href="/feed" className="text-red-300 underline">Back to feed</Link>
       </div>
     );
+  const canAccept = !IS_LIVE || persona.id === request.clientId;
 
   return (
     <div className="space-y-8">
@@ -86,7 +88,11 @@ export function RequestView() {
               <div className="text-xs text-zinc-500">{bids.filter((b) => b.artistCountry !== request.clientCountry).length} international · {bids.filter((b) => b.artistCountry === request.clientCountry).length} local</div>
             </div>
           </div>
-          {isArtist && request.status === "open" && (
+          {IS_LIVE && isArtist && !isApprovedArtist && request.status === "open" ? (
+            <p className="rounded-sm border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-sm text-amber-200">
+              Your studio is pending approval
+            </p>
+          ) : isArtist && isApprovedArtist && request.status === "open" && (
             <Button variant="emerald" onClick={() => setBidOpen(true)}><Gavel className="h-4 w-4" /> Submit Quote (Bid) on this request</Button>
           )}
         </div>
@@ -114,7 +120,7 @@ export function RequestView() {
           <motion.div layout className="grid gap-4">
             <AnimatePresence initial={false}>
               {sorted.map((b) => (
-                <QuoteCard key={b.id} bid={b} request={request} isNew={newIds.has(b.id)} isBest={b.id === bestId} onAccept={setAccepting} onZoom={(urls, index) => setLb({ urls, index })} />
+                <QuoteCard key={b.id} bid={b} request={request} canAccept={canAccept} isNew={newIds.has(b.id)} isBest={b.id === bestId} onAccept={setAccepting} onZoom={(urls, index) => setLb({ urls, index })} />
               ))}
             </AnimatePresence>
           </motion.div>

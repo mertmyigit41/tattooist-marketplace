@@ -9,10 +9,13 @@ import { Badge, Card, CountryTag, Spinner, Stars } from "@/components/ui";
 import { useProfiles } from "@/lib/hooks";
 import { FALLBACK_PROFILE_AVAILABILITY } from "@/lib/seed";
 import { eur } from "@/lib/utils";
+import { IS_LIVE } from "@/lib/mode";
 
 export default function ArtistsPage() {
   const { profiles, loading } = useProfiles("artist");
-  const sorted = [...profiles].sort((a, b) => Number(b.isPro) - Number(a.isPro) || b.rating - a.rating);
+  const sorted = profiles
+    .filter((profile) => !IS_LIVE || profile.approved === true)
+    .sort((a, b) => Number(b.isPro) - Number(a.isPro) || b.rating - a.rating);
 
   return (
     <div className="space-y-8">

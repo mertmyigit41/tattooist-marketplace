@@ -10,13 +10,14 @@ import {
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { getDb } from "./firebase";
+import { col } from "./mode";
 import type { Bid, Profile, TattooRequest } from "./types";
 
 export function useRequests() {
   const [requests, setRequests] = useState<TattooRequest[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    const q = query(collection(getDb(), "requests"), orderBy("createdAt", "desc"));
+    const q = query(collection(getDb(), col("requests")), orderBy("createdAt", "desc"));
     return onSnapshot(q, (snap) => {
       setRequests(snap.docs.map((d) => ({ ...(d.data() as TattooRequest), id: d.id })));
       setLoading(false);
@@ -29,7 +30,7 @@ export function useRequest(id: string | undefined) {
   const [request, setRequest] = useState<TattooRequest | null | undefined>(undefined);
   useEffect(() => {
     if (!id) return;
-    return onSnapshot(doc(getDb(), "requests", id), (snap) => {
+    return onSnapshot(doc(getDb(), col("requests"), id), (snap) => {
       setRequest(snap.exists() ? ({ ...(snap.data() as TattooRequest), id: snap.id }) : null);
     });
   }, [id]);
@@ -43,7 +44,7 @@ export function useBids(requestId: string | undefined) {
   useEffect(() => {
     if (!requestId) return;
     let first = true;
-    const q = query(collection(getDb(), "bids"), where("requestId", "==", requestId));
+    const q = query(collection(getDb(), col("bids")), where("requestId", "==", requestId));
     return onSnapshot(q, (snap) => {
       const list = snap.docs.map((d) => ({ ...(d.data() as Bid), id: d.id }));
       list.sort((a, b) => b.createdAt - a.createdAt);
@@ -77,7 +78,7 @@ export function useBidCounts() {
   const [bumped, setBumped] = useState<Set<string>>(new Set());
   useEffect(() => {
     let first = true;
-    return onSnapshot(collection(getDb(), "bids"), (snap) => {
+    return onSnapshot(collection(getDb(), col("bids")), (snap) => {
       const next: Record<string, number> = {};
       snap.docs.forEach((d) => {
         const rid = (d.data() as Bid).requestId;
@@ -108,7 +109,7 @@ export function useProfiles(role?: "artist" | "client") {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    const base = collection(getDb(), "profiles");
+    const base = collection(getDb(), col("profiles"));
     const q = role ? query(base, where("role", "==", role)) : base;
     return onSnapshot(q, (snap) => {
       setProfiles(snap.docs.map((d) => ({ ...(d.data() as Profile), id: d.id })));
@@ -122,7 +123,7 @@ export function useProfile(id: string | undefined) {
   const [profile, setProfile] = useState<Profile | null | undefined>(undefined);
   useEffect(() => {
     if (!id) return;
-    return onSnapshot(doc(getDb(), "profiles", id), (snap) => {
+    return onSnapshot(doc(getDb(), col("profiles"), id), (snap) => {
       setProfile(snap.exists() ? ({ ...(snap.data() as Profile), id: snap.id }) : null);
     });
   }, [id]);

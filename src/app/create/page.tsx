@@ -5,6 +5,7 @@ import { ArrowRight, Globe2, MapPin, Plane, Sparkles, Wand2 } from "lucide-react
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
 import { ImageToggle, StencilImage } from "@/components/ImageToggle";
+import { LiveRoleGate } from "@/components/LiveRoleGate";
 import { Button, Card, Pill, Spinner } from "@/components/ui";
 import { createRequest } from "@/lib/actions";
 import { STYLE_CONCEPTS } from "@/lib/images";
@@ -22,9 +23,11 @@ function hash(s: string) {
 
 export default function CreatePage() {
   return (
-    <Suspense fallback={<div className="py-24 text-center text-zinc-500"><Spinner /> Loading design studio…</div>}>
-      <CreateContent />
-    </Suspense>
+    <LiveRoleGate role="client">
+      <Suspense fallback={<div className="py-24 text-center text-zinc-500"><Spinner /> Loading design studio…</div>}>
+        <CreateContent />
+      </Suspense>
+    </LiveRoleGate>
   );
 }
 
