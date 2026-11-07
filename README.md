@@ -1,4 +1,4 @@
-# InkBid
+# Inqfy
 
 Reverse marketplace and global price-arbitrage platform for tattoos — "Thumbtack meets global tattoo tourism".
 Clients post a design, artists worldwide send fixed-price quotes, and the client compares
@@ -16,7 +16,7 @@ npm run dev                  # http://localhost:3000
 
 To develop against the Firestore emulator instead of production, set
 `NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST=127.0.0.1:8080` in `.env.local` and run
-`npx firebase emulators:start --only firestore --project inkbid-demo`.
+`npx firebase emulators:start --only firestore --project inqfy-demo`.
 
 The app auto-seeds demo data (6 studios, 4 open requests, flagship bids) into an empty database.
 "Reset Demo Data" in the navbar re-seeds at any time.

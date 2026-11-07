@@ -27,7 +27,7 @@ export default function Home() {
             <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-emerald-400 bg-clip-text text-transparent">worldwide</span>.
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg text-zinc-400">
-            A €3,800 Dublin sleeve is €750 in Bangkok. InkBid shows you exactly what you save — even after flights — and lets artists compete for your design.
+            A €3,800 Dublin sleeve is €750 in Bangkok. Inqfy shows you exactly what you save — even after flights — and lets artists compete for your design.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link href="/create">

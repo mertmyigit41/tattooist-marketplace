@@ -20,7 +20,7 @@ export function AcceptModal({ bid, request, onClose }: { bid: Bid | null; reques
   const total = bidTotal(bid);
   const savings = request.estimatedLocalPriceEur - total;
   const text = encodeURIComponent(
-    `Hi ${bid.artistName}! I'm ${request.clientName} from ${request.clientCity} — I'm accepting your InkBid quote of ${eur(bid.priceEur)} for "${request.title}" (${bid.sessionPlan}, from ${bid.availableDate}). Let's lock in the dates!`,
+    `Hi ${bid.artistName}! I'm ${request.clientName} from ${request.clientCity} — I'm accepting your Inqfy quote of ${eur(bid.priceEur)} for "${request.title}" (${bid.sessionPlan}, from ${bid.availableDate}). Let's lock in the dates!`,
   );
   const wa = `https://wa.me/${(artist?.whatsapp ?? "").replace(/\D/g, "")}?text=${text}`;
 
@@ -82,7 +82,7 @@ export function AcceptModal({ bid, request, onClose }: { bid: Bid | null; reques
           <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3 text-xs text-zinc-400">
             <Check className="mr-1 inline h-3.5 w-3.5 text-emerald-400" /> Fixed price locked. No surprise consultation fees.
             <br />
-            <Check className="mr-1 inline h-3.5 w-3.5 text-emerald-400" /> Payment is made directly to the studio — InkBid takes 0% commission.
+            <Check className="mr-1 inline h-3.5 w-3.5 text-emerald-400" /> Payment is made directly to the studio — Inqfy takes 0% commission.
           </div>
 
           <div className="flex gap-2">

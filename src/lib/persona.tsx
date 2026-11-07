@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useMemo, useSyncExternalStore }
 import { PERSONAS } from "./personas";
 import type { Persona } from "./types";
 
-const KEY = "inkbid.persona";
+const KEY = "inqfy.persona";
 
 interface PersonaCtx {
   persona: Persona;

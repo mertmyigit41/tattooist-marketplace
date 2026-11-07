@@ -10,7 +10,7 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "InkBid — Global Tattoo Price Arbitrage",
+  title: "Inqfy — Global Tattoo Price Arbitrage",
   description:
     "Post your tattoo idea once, get fixed-price quotes from studios worldwide, and see exactly how much you save even after flights.",
 };

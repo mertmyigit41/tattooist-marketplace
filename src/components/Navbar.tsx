@@ -25,7 +25,7 @@ export function Logo() {
         <Globe2 className="h-4.5 w-4.5 text-white" />
       </span>
       <span className="text-xl font-black tracking-tight">
-        Ink<span className="bg-gradient-to-r from-violet-400 to-emerald-400 bg-clip-text text-transparent text-glow-violet">Bid</span>
+        Inq<span className="bg-gradient-to-r from-violet-400 to-emerald-400 bg-clip-text text-transparent text-glow-violet">fy</span>
       </span>
     </Link>
   );

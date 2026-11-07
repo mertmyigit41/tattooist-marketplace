@@ -9,10 +9,10 @@ import {
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? "demo-api-key",
   authDomain:
-    process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? "inkbid-demo.firebaseapp.com",
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? "inkbid-demo",
+    process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? "inqfy-demo.firebaseapp.com",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? "inqfy-demo",
   storageBucket:
-    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? "inkbid-demo.appspot.com",
+    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? "inqfy-demo.appspot.com",
   messagingSenderId:
     process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? "000000000000",
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID ?? "1:000000000000:web:demo",
@@ -21,7 +21,7 @@ const firebaseConfig = {
 const emulatorHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST;
 
 declare global {
-  var __inkbidEmulatorConnected: boolean | undefined;
+  var __inqfyEmulatorConnected: boolean | undefined;
 }
 
 function getApp(): FirebaseApp {
@@ -33,10 +33,10 @@ let dbInstance: Firestore | null = null;
 export function getDb(): Firestore {
   if (dbInstance) return dbInstance;
   const db = getFirestore(getApp());
-  if (emulatorHost && !globalThis.__inkbidEmulatorConnected) {
+  if (emulatorHost && !globalThis.__inqfyEmulatorConnected) {
     const [host, port] = emulatorHost.split(":");
     connectFirestoreEmulator(db, host, Number(port));
-    globalThis.__inkbidEmulatorConnected = true;
+    globalThis.__inqfyEmulatorConnected = true;
   }
   dbInstance = db;
   return db;

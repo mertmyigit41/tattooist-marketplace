@@ -11,7 +11,7 @@ export function Footer() {
     <footer className="mt-16 border-t border-zinc-800/80">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-6 text-xs text-zinc-500 sm:flex-row sm:px-6 lg:px-8">
         <span>
-          © {new Date().getFullYear()} InkBid — Thumbtack meets Global Tattoo Tourism.
+          © {new Date().getFullYear()} Inqfy — Thumbtack meets Global Tattoo Tourism.
           {isEmulator && <span className="ml-2 rounded bg-amber-500/10 px-1.5 py-0.5 text-amber-400">Firestore emulator</span>}
         </span>
         <button
