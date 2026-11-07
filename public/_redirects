@@ -1,0 +1,4 @@
+# Cloudflare Pages: serve the static placeholder page for ids created at runtime
+# (pre-rendered seeded ids are matched as static files first).
+/requests/*  /requests/_  200
+/artists/*   /artists/_   200

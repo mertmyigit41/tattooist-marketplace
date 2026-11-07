@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# InkBid
 
-## Getting Started
+Reverse marketplace and global price-arbitrage platform for tattoos — "Thumbtack meets global tattoo tourism".
+Clients post a design, artists worldwide send fixed-price quotes, and the client compares
+**tattoo price + estimated flight** against the local baseline, live.
 
-First, run the development server:
+Stack: Next.js (App Router, static export), TypeScript, Tailwind CSS, Framer Motion, Lucide, Firebase Firestore (modular SDK).
+
+## Local development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # fill in your Firebase web config
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+To develop against the Firestore emulator instead of production, set
+`NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST=127.0.0.1:8080` in `.env.local` and run
+`npx firebase emulators:start --only firestore --project inkbid-demo`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The app auto-seeds demo data (6 studios, 4 open requests, flagship bids) into an empty database.
+"Reset Demo Data" in the navbar re-seeds at any time.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Firestore setup (one-time)
 
-## Learn More
+1. Firebase console → Build → Firestore Database → Create database.
+2. Rules tab → paste `firestore.rules` → Publish. (The demo has no auth, so the three demo
+   collections are world read/write — tighten before real users.)
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The build is a fully static export (`npm run build` → `out/`), so any static host works.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Cloudflare Pages (custom domain on Cloudflare)
 
-## Deploy on Vercel
+1. Cloudflare dashboard → Workers & Pages → Create → Pages → Connect to Git → pick this repo.
+2. Build settings: framework preset **Next.js (Static HTML Export)**, build command `npm run build`,
+   output directory `out`.
+3. Environment variables (Production *and* Preview): every `NEXT_PUBLIC_FIREBASE_*` key from
+   `.env.example`, plus `NODE_VERSION=22`.
+4. Deploy, then Custom domains → add your domain (Cloudflare creates the DNS record for you).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`public/_redirects` maps `/requests/*` and `/artists/*` to the static placeholder pages so request
+and artist ids created at runtime work on hard reload; `public/_headers` sets cache headers.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Firebase Hosting
+
+`firebase.json` is also configured (public dir `out`, same rewrites): `npm run build && npx firebase deploy`.
+
+## Image credits
+
+Tattoo photography in `public/img` is from Wikimedia Commons under free licenses; see
+`public/img/CREDITS.md`.
