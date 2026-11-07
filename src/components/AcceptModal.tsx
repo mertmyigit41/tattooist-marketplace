@@ -14,6 +14,7 @@ export function AcceptModal({ bid, request, onClose }: { bid: Bid | null; reques
   const artist = useProfile(bid?.artistId);
   const [busy, setBusy] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (!bid) return <Modal open={false} onClose={onClose}>{null}</Modal>;
 
@@ -28,9 +29,12 @@ export function AcceptModal({ bid, request, onClose }: { bid: Bid | null; reques
     const selectedBid = bid;
     if (!selectedBid) return;
     setBusy(true);
+    setError(null);
     try {
       await markBooked(request.id, selectedBid.id);
       setConfirmed(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not accept this quote");
     } finally {
       setBusy(false);
     }
@@ -89,6 +93,9 @@ export function AcceptModal({ bid, request, onClose }: { bid: Bid | null; reques
             <Check className="mr-1 inline h-3.5 w-3.5 text-emerald-400" /> Payment is made directly to the studio — Inqfy takes 0% commission.
           </div>
 
+          {error && (
+            <p role="alert" className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-200">{error}</p>
+          )}
           <div className="flex gap-2">
             <Button variant="ghost" onClick={onClose} className="flex-1">Cancel</Button>
             <Button variant="whatsapp" onClick={confirm} disabled={busy} className="flex-[2]">
