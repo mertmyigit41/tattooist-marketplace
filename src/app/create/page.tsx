@@ -2,8 +2,8 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Globe2, MapPin, Plane, Sparkles, Wand2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useMemo, useState } from "react";
 import { ImageToggle, StencilImage } from "@/components/ImageToggle";
 import { Button, Card, Pill, Spinner } from "@/components/ui";
 import { createRequest } from "@/lib/actions";
@@ -21,13 +21,50 @@ function hash(s: string) {
 }
 
 export default function CreatePage() {
+  return (
+    <Suspense fallback={<div className="py-24 text-center text-zinc-500"><Spinner /> Loading design studio…</div>}>
+      <CreateContent />
+    </Suspense>
+  );
+}
+
+function CreateContent() {
+  const searchParams = useSearchParams();
+  const queryStyle = searchParams.get("style");
+  const imageParam = searchParams.get("img");
+  const initialStyle =
+    queryStyle && STYLES.some((candidate) => candidate === queryStyle)
+      ? queryStyle
+      : STYLES[0];
+
+  return (
+    <CreateForm
+      key={`${queryStyle ?? ""}|${imageParam ?? ""}`}
+      initialStyle={initialStyle}
+      hasPrefill={!!queryStyle || !!imageParam}
+      imageParam={imageParam}
+    />
+  );
+}
+
+function CreateForm({
+  initialStyle,
+  hasPrefill,
+  imageParam,
+}: {
+  initialStyle: string;
+  hasPrefill: boolean;
+  imageParam: string | null;
+}) {
   const router = useRouter();
   const { persona } = usePersona();
-  const [prompt, setPrompt] = useState("");
-  const [style, setStyle] = useState<string>(STYLES[0]);
+  const [prompt, setPrompt] = useState(() => hasPrefill ? `Like this ${initialStyle} piece` : "");
+  const [style, setStyle] = useState<string>(initialStyle);
   const [placement, setPlacement] = useState<string>(PLACEMENTS[0].id);
   const [generating, setGenerating] = useState(false);
-  const [result, setResult] = useState<{ concept: string; stencil: string; source: string } | null>(null);
+  const [result, setResult] = useState<{ concept: string; stencil: string; source: string } | null>(() =>
+    imageParam ? { concept: imageParam, stencil: imageParam, source: "curated" } : null,
+  );
   const [view, setView] = useState<"concept" | "stencil">("concept");
 
   const [travelMode, setTravelMode] = useState<TravelMode>("open_worldwide");

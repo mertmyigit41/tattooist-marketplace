@@ -3,9 +3,11 @@
 import { motion } from "framer-motion";
 import { BadgeCheck, MapPin } from "lucide-react";
 import Link from "next/link";
+import { AvailabilityBadges } from "@/components/AvailabilityBadges";
 import { ProUpsell } from "@/components/ProUpsell";
 import { Badge, Card, CountryTag, Spinner, Stars } from "@/components/ui";
 import { useProfiles } from "@/lib/hooks";
+import { FALLBACK_PROFILE_AVAILABILITY } from "@/lib/seed";
 import { eur } from "@/lib/utils";
 
 export default function ArtistsPage() {
@@ -25,8 +27,10 @@ export default function ArtistsPage() {
         <div className="flex items-center justify-center gap-2 py-24 text-zinc-500"><Spinner /> Loading studios…</div>
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {sorted.map((p, i) => (
-            <motion.div key={p.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+          {sorted.map((p, i) => {
+            const fallback = FALLBACK_PROFILE_AVAILABILITY[p.id];
+            return (
+              <motion.div key={p.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
               <Link href={`/artists/${p.id}`}>
                 <Card className="group h-full overflow-hidden transition hover:border-zinc-600">
                   <div className="grid grid-cols-3 gap-0.5">
@@ -53,6 +57,12 @@ export default function ArtistsPage() {
                     <div className="mt-3 flex flex-wrap gap-1.5">
                       {p.styles.map((s) => <Badge key={s}>{s}</Badge>)}
                     </div>
+                    <div className="mt-3">
+                      <AvailabilityBadges
+                        responseHours={p.responseHours ?? fallback?.responseHours}
+                        nextOpening={p.nextOpening ?? fallback?.nextOpening}
+                      />
+                    </div>
                     <div className="mt-3 flex items-center justify-between border-t border-zinc-800 pt-3 text-sm">
                       <span className="text-zinc-400">Rate</span>
                       <span className="font-semibold">{p.hourlyRateEur ? `${eur(p.hourlyRateEur)}/hr` : "—"}</span>
@@ -60,8 +70,9 @@ export default function ArtistsPage() {
                   </div>
                 </Card>
               </Link>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
       )}
     </div>

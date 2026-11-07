@@ -4,9 +4,11 @@ import { ArrowLeft, BadgeCheck, MapPin, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouteId } from "@/lib/useRouteId";
 import { useState } from "react";
+import { AvailabilityBadges } from "@/components/AvailabilityBadges";
 import { Lightbox } from "@/components/Lightbox";
 import { Badge, Button, Card, CountryTag, Spinner, Stars } from "@/components/ui";
 import { useProfile } from "@/lib/hooks";
+import { FALLBACK_PROFILE_AVAILABILITY } from "@/lib/seed";
 import { eur } from "@/lib/utils";
 
 export function ArtistView() {
@@ -16,6 +18,7 @@ export function ArtistView() {
 
   if (p === undefined) return <div className="flex items-center justify-center gap-2 py-24 text-zinc-500"><Spinner /> Loading…</div>;
   if (p === null) return <div className="py-24 text-center text-zinc-400">Studio not found.</div>;
+  const fallback = FALLBACK_PROFILE_AVAILABILITY[p.id];
 
   return (
     <div className="space-y-6">
@@ -33,6 +36,12 @@ export function ArtistView() {
             {p.hourlyRateEur && <span>· {eur(p.hourlyRateEur)}/hr</span>}
           </div>
           <p className="mt-2 text-zinc-300">{p.tagline}</p>
+          <div className="mt-3">
+            <AvailabilityBadges
+              responseHours={p.responseHours ?? fallback?.responseHours}
+              nextOpening={p.nextOpening ?? fallback?.nextOpening}
+            />
+          </div>
           <div className="mt-3 flex flex-wrap gap-1.5">{p.styles.map((s) => <Badge key={s}>{s}</Badge>)}</div>
         </div>
         <a href={`https://wa.me/${p.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">

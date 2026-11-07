@@ -3,20 +3,16 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Plane, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { FLAGSHIP_REQUEST_ID } from "@/lib/seed";
+import { SearchBar } from "@/components/SearchBar";
 import { Button } from "@/components/ui";
+import { CITIES } from "@/lib/cities";
+import { FLAGSHIP_REQUEST_ID } from "@/lib/seed";
+import { eur } from "@/lib/utils";
 
 const STEPS = [
   { n: "01", title: "Post the design", text: "Describe it, pick style and placement, get a concept and a clean stencil. One post, no studio-hopping." },
   { n: "02", title: "Studios bid a fixed price", text: "Verified studios from Istanbul to Bangkok answer with a number, a session plan and three matching pieces. No “DM for price”." },
   { n: "03", title: "Count the flight, keep the change", text: "We add the roundtrip fare and compare the landed cost against your local baseline. Then you talk to the artist on WhatsApp." },
-];
-
-const CITIES = [
-  { city: "Dublin", price: "€3,800", note: "local baseline" },
-  { city: "Istanbul", price: "€1,170", note: "incl. €220 flight" },
-  { city: "Bangkok", price: "€1,400", note: "incl. €650 flight" },
-  { city: "Bali", price: "€1,550", note: "incl. €750 flight" },
 ];
 
 export default function Home() {
@@ -45,6 +41,9 @@ export default function Home() {
             <Link href={`/requests/${FLAGSHIP_REQUEST_ID}`}>
               <Button variant="outline" size="lg">See a live bid war <ArrowRight className="h-4 w-4" /></Button>
             </Link>
+          </div>
+          <div className="mt-6 w-full">
+            <SearchBar />
           </div>
         </motion.div>
 
@@ -77,21 +76,27 @@ export default function Home() {
       </section>
 
       <section className="rule-dashed pt-10">
-        <div className="grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 sm:grid-cols-2 lg:grid-cols-4">
-          {CITIES.map((c, i) => (
-            <div key={c.city} className="paper bg-[#121214] p-5">
+        <div className="mb-4 flex items-end justify-between gap-3">
+          <h2 className="font-display text-3xl text-zinc-100">Prices by city</h2>
+          <Link href="/cities" className="text-xs text-zinc-400 underline underline-offset-4 hover:text-white">All cities</Link>
+        </div>
+        <div className="grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 sm:grid-cols-2 lg:grid-cols-5">
+          {CITIES.map((city) => (
+            <Link key={city.slug} href={`/cities/${city.slug}`} className="paper bg-[#121214] p-5 transition hover:bg-zinc-900">
               <div className="flex items-center justify-between text-[11px] uppercase tracking-widest text-zinc-500">
-                <span>{c.city}</span>
-                {i > 0 && <Plane className="h-3.5 w-3.5" />}
+                <span>{city.name}</span>
+                {city.slug !== "dublin" && <Plane className="h-3.5 w-3.5" />}
               </div>
-              <div className={`mt-2 font-display text-5xl leading-none ${i === 0 ? "text-zinc-500 line-through decoration-red-600 decoration-4" : "text-zinc-50"}`}>
-                {c.price}
+              <div className={`mt-2 font-display text-5xl leading-none ${city.slug === "dublin" ? "text-zinc-500 line-through decoration-red-600 decoration-4" : "text-zinc-50"}`}>
+                {eur(city.prices.sleeve + city.flightFromDublinEur)}
               </div>
-              <div className="mt-1 text-xs text-zinc-500">{c.note}</div>
-            </div>
+              <div className="mt-1 text-xs text-zinc-500">
+                {city.slug === "dublin" ? "local baseline" : `incl. ${eur(city.flightFromDublinEur)} flight`}
+              </div>
+            </Link>
           ))}
         </div>
-        <p className="mt-3 text-xs text-zinc-500">Seeded demo numbers from the live flagship request. Flights are estimated roundtrip economy fares.</p>
+        <p className="mt-3 text-xs text-zinc-500">Full price tables include estimated roundtrip economy fares from Dublin.</p>
       </section>
 
       <section className="grid gap-10 md:grid-cols-3">

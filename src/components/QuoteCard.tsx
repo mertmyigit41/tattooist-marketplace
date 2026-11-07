@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { BadgeCheck, CalendarDays, MapPin, MessageCircle, UserRound, ZoomIn } from "lucide-react";
 import Link from "next/link";
+import { AvailabilityBadges } from "@/components/AvailabilityBadges";
+import { FALLBACK_PROFILE_AVAILABILITY } from "@/lib/seed";
 import type { Bid, TattooRequest } from "@/lib/types";
 import { cn, eur, stripEmoji, timeAgo } from "@/lib/utils";
 import { Badge, Button, Card, CountryTag, Stars } from "./ui";
@@ -30,6 +32,7 @@ export function QuoteCard({
   const total = bidTotal(bid);
   const savings = request.estimatedLocalPriceEur - total;
   const saves = savings > 0;
+  const availability = FALLBACK_PROFILE_AVAILABILITY[bid.artistId];
 
   return (
     <motion.div
@@ -86,6 +89,10 @@ export function QuoteCard({
                 </Badge>
               ))}
             </div>
+            <AvailabilityBadges
+              responseHours={availability?.responseHours}
+              nextOpening={availability?.nextOpening}
+            />
 
             <p className="text-sm leading-relaxed text-zinc-300">{bid.message}</p>
 

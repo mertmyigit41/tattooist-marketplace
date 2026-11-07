@@ -2,10 +2,13 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Filter, Radio } from "lucide-react";
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { Suspense, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { BidModal } from "@/components/BidModal";
 import { RequestCard } from "@/components/RequestCard";
 import { CountryTag, Pill, Spinner } from "@/components/ui";
+import { SearchBar } from "@/components/SearchBar";
 import { useBidCounts, useRequests } from "@/lib/hooks";
 import { usePersona } from "@/lib/persona";
 import type { TattooRequest } from "@/lib/types";
@@ -14,9 +17,20 @@ import { STYLES } from "@/lib/utils";
 type Quick = "all" | "worldwide" | "high";
 
 export default function FeedPage() {
+  return (
+    <Suspense fallback={<div className="py-24 text-center text-zinc-500"><Spinner /> Loading requests…</div>}>
+      <FeedContent />
+    </Suspense>
+  );
+}
+
+function FeedContent() {
   const { requests, loading } = useRequests();
   const { counts, bumped } = useBidCounts();
   const { isArtist, persona } = usePersona();
+  const searchParams = useSearchParams();
+  const q = (searchParams.get("q") ?? "").trim();
+  const city = (searchParams.get("city") ?? "").trim();
   const [quick, setQuick] = useState<Quick>("all");
   const [style, setStyle] = useState<string | null>(null);
   const [bidTarget, setBidTarget] = useState<TattooRequest | null>(null);
@@ -29,13 +43,29 @@ export default function FeedPage() {
         if (quick === "worldwide" && r.travelMode !== "open_worldwide") return false;
         if (quick === "high" && !["Full Sleeve", "Backpiece"].includes(r.bodyPart)) return false;
         if (style && r.style !== style) return false;
+        if (
+          q &&
+          ![r.title, r.prompt, r.style, r.bodyPart].some((value) =>
+            value.toLowerCase().includes(q.toLowerCase()),
+          )
+        ) {
+          return false;
+        }
+        if (
+          city &&
+          !r.clientCity.toLowerCase().includes(city.toLowerCase()) &&
+          !r.targetDestination.toLowerCase().includes(city.toLowerCase())
+        ) {
+          return false;
+        }
         return true;
       }),
-    [requests, quick, style],
+    [requests, quick, style, q, city],
   );
 
   return (
     <div className="space-y-6">
+      <SearchBar key={`${q}-${city}`} query={q} city={city} />
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300">
@@ -51,7 +81,16 @@ export default function FeedPage() {
             )}
           </p>
         </div>
-        <div className="text-sm text-zinc-500">{filtered.length} open request{filtered.length === 1 ? "" : "s"}</div>
+        <div className="text-sm text-zinc-500">
+          {q || city ? (
+            <>
+              {filtered.length} results for {q && <>“{q}”</>}{q && city && " in "}{city}
+              {" · "}<Link href="/feed" className="text-zinc-300 underline underline-offset-2">Clear</Link>
+            </>
+          ) : (
+            <>{filtered.length} open request{filtered.length === 1 ? "" : "s"}</>
+          )}
+        </div>
       </header>
 
       <div className="flex flex-col gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-3 sm:flex-row sm:items-center sm:justify-between">

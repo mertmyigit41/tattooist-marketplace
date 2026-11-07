@@ -20,6 +20,8 @@ export interface Profile {
   whatsapp: string;
   hourlyRateEur?: number;
   tagline?: string;
+  responseHours?: number;
+  nextOpening?: string;
 }
 
 export interface TattooRequest {

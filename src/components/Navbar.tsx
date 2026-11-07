@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Database, Droplets, LayoutList, MapPin, Radio, Sparkles, Users } from "lucide-react";
+import { ChevronDown, Database, Droplets, Image as ImageIcon, LayoutList, MapPin, Radio, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -16,10 +16,12 @@ function initials(name: string) {
 }
 
 const LINKS = [
-  { href: "/create", label: "Design Studio", icon: Sparkles },
-  { href: "/feed", label: "Open Requests", icon: Radio },
+  { href: "/create", label: "Design", icon: Sparkles },
+  { href: "/feed", label: "Requests", icon: Radio },
   { href: "/requests", label: "My Requests", icon: LayoutList },
   { href: "/artists", label: "Studios", icon: Users },
+  { href: "/cities", label: "Cities", icon: MapPin },
+  { href: "/inspiration", label: "Inspiration", icon: ImageIcon },
 ];
 
 export function Logo() {

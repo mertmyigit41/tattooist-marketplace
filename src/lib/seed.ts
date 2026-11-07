@@ -13,6 +13,18 @@ import type { Bid, Profile, TattooRequest } from "./types";
 const now = Date.now();
 const h = 3600_000;
 
+export const FALLBACK_PROFILE_AVAILABILITY: Record<
+  string,
+  { responseHours: number; nextOpening: string }
+> = {
+  "artist-templebar": { responseHours: 24, nextOpening: "2–3 months" },
+  "artist-sakura": { responseHours: 6, nextOpening: "Next week" },
+  "artist-canggu": { responseHours: 12, nextOpening: "Next month" },
+  "artist-karakoy": { responseHours: 2, nextOpening: "This week" },
+  "artist-warsaw": { responseHours: 8, nextOpening: "This week" },
+  "artist-soho": { responseHours: 48, nextOpening: "2–3 months" },
+};
+
 export const SEED_PROFILES: Profile[] = [
   {
     id: "client-mert",
@@ -31,6 +43,7 @@ export const SEED_PROFILES: Profile[] = [
   },
   {
     id: "artist-templebar",
+    ...FALLBACK_PROFILE_AVAILABILITY["artist-templebar"],
     role: "artist",
     name: "Temple Bar Ink",
     city: "Dublin",
@@ -48,6 +61,7 @@ export const SEED_PROFILES: Profile[] = [
   },
   {
     id: "artist-sakura",
+    ...FALLBACK_PROFILE_AVAILABILITY["artist-sakura"],
     role: "artist",
     name: "Sakura Ink Master",
     city: "Bangkok",
@@ -65,6 +79,7 @@ export const SEED_PROFILES: Profile[] = [
   },
   {
     id: "artist-canggu",
+    ...FALLBACK_PROFILE_AVAILABILITY["artist-canggu"],
     role: "artist",
     name: "Canggu Blackwork Collective",
     city: "Bali",
@@ -82,6 +97,7 @@ export const SEED_PROFILES: Profile[] = [
   },
   {
     id: "artist-karakoy",
+    ...FALLBACK_PROFILE_AVAILABILITY["artist-karakoy"],
     role: "artist",
     name: "Karaköy Fine Line Studio",
     city: "Istanbul",
@@ -99,6 +115,7 @@ export const SEED_PROFILES: Profile[] = [
   },
   {
     id: "artist-warsaw",
+    ...FALLBACK_PROFILE_AVAILABILITY["artist-warsaw"],
     role: "artist",
     name: "Warsaw Dark Art",
     city: "Warsaw",
@@ -116,6 +133,7 @@ export const SEED_PROFILES: Profile[] = [
   },
   {
     id: "artist-soho",
+    ...FALLBACK_PROFILE_AVAILABILITY["artist-soho"],
     role: "artist",
     name: "SoHo Ink NYC",
     city: "New York",
