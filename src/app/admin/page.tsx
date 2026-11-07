@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { Check, ShieldCheck, Trash2 } from "lucide-react";
 import { Badge, Button, Card, CountryTag, Spinner } from "@/components/ui";
@@ -199,8 +200,21 @@ export default function AdminPage() {
   if (loading) {
     return <div className="flex items-center justify-center gap-2 py-24 text-zinc-500"><Spinner /> Checking admin access…</div>;
   }
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center gap-4 py-20 text-center text-zinc-400">
+        <p>Sign in with the admin Google account to continue.</p>
+        <Link href="/login"><Button>Sign in</Button></Link>
+      </div>
+    );
+  }
   if (!isAdminUser(user)) {
-    return <div className="py-20 text-center text-zinc-400">Admins only</div>;
+    return (
+      <div className="py-20 text-center text-zinc-400">
+        Admins only. Signed in as {user.email ?? "unknown"}
+        {user.emailVerified ? "" : " (email not verified — use Google sign-in)"}.
+      </div>
+    );
   }
 
   return <AdminDashboard />;
