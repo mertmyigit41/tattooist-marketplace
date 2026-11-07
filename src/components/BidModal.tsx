@@ -23,6 +23,8 @@ import {
 } from "@/lib/utils";
 import { Button, Modal, Pill, Spinner } from "./ui";
 
+const MIN_NOTE_CHARS = 40;
+
 const QUICK_DATES = [
   { label: "Next Week", value: () => fmt(addDays(7)) },
   { label: "Nov 15, 2026", value: () => "Nov 15, 2026" },
@@ -109,7 +111,14 @@ function BidForm({
     /\b(dm me|consultation|come to (the )?studio|message me|call me)\b/i.test(
       message,
     );
-  const valid = priceNum > 0 && plan && date && selected.length === 3 && !vague;
+  const noteTooShort = message.trim().length < MIN_NOTE_CHARS;
+  const valid =
+    priceNum > 0 &&
+    plan &&
+    date &&
+    selected.length === 3 &&
+    !vague &&
+    !noteTooShort;
 
   async function handleSubmit() {
     if (!valid || !profile) return;
@@ -349,7 +358,7 @@ function BidForm({
         )}
       </Field>
 
-      <Field label="Short Pitch Note">
+      <Field label={`Short Pitch Note (min ${MIN_NOTE_CHARS} characters)`}>
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
@@ -362,12 +371,17 @@ function BidForm({
               : "border-zinc-800 focus:border-amber-500",
           )}
         />
-        {vague && (
+        {vague ? (
           <p className="mt-1 text-xs text-rose-400">
             Vague &quot;DM me / consultation&quot; pitches are not allowed. Give
             a concrete fixed-price plan.
           </p>
-        )}
+        ) : noteTooShort ? (
+          <p className="mt-1 text-xs text-zinc-500">
+            {MIN_NOTE_CHARS - message.trim().length} more characters — describe
+            technique, experience and what each session covers.
+          </p>
+        ) : null}
       </Field>
 
       {error && <p className="text-sm text-rose-400">{error}</p>}
