@@ -1,26 +1,45 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
+  --animate-pulse-glow: pulse-glow 2.4s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.2s linear infinite;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.35), 0 0 24px rgba(16, 185, 129, 0.25); }
+    50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0), 0 0 40px rgba(16, 185, 129, 0.45); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 }
 
+html { color-scheme: dark; }
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #09090b;
+  color: #f4f4f5;
+  background-image:
+    radial-gradient(60% 40% at 10% 0%, rgba(139, 92, 246, 0.14), transparent 60%),
+    radial-gradient(50% 35% at 90% 10%, rgba(16, 185, 129, 0.10), transparent 60%);
+  background-attachment: fixed;
 }
+
+* { scrollbar-width: thin; scrollbar-color: #3f3f46 transparent; }
+
+.stencil {
+  filter: grayscale(1) contrast(5) brightness(1.15) invert(1);
+  mix-blend-mode: normal;
+  background: #fff;
+}
+
+.stencil-overlay {
+  background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.04) 0 1px, transparent 1px 3px);
+}
+
+.text-glow-emerald { text-shadow: 0 0 18px rgba(16, 185, 129, 0.55); }
+.text-glow-violet { text-shadow: 0 0 18px rgba(167, 139, 250, 0.6); }
+
+input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: .7; }

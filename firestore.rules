@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Demo app with no auth: open read/write on the three demo collections.
+    match /profiles/{id} { allow read, write: if true; }
+    match /requests/{id} { allow read, write: if true; }
+    match /bids/{id} { allow read, write: if true; }
+  }
+}
