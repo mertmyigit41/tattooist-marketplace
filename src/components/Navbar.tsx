@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Database, Globe2, LayoutList, Radio, Sparkles, UserRound, Users } from "lucide-react";
+import { ChevronDown, Database, Droplets, LayoutList, Radio, Sparkles, UserRound, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -12,20 +12,20 @@ import { cn } from "@/lib/utils";
 import { Spinner } from "./ui";
 
 const LINKS = [
-  { href: "/create", label: "AI Tattoo Studio", icon: Sparkles },
-  { href: "/feed", label: "Live Request Feed", icon: Radio },
+  { href: "/create", label: "Design Studio", icon: Sparkles },
+  { href: "/feed", label: "Open Requests", icon: Radio },
   { href: "/requests", label: "My Requests", icon: LayoutList },
-  { href: "/artists", label: "Artist Directory", icon: Users },
+  { href: "/artists", label: "Studios", icon: Users },
 ];
 
 export function Logo() {
   return (
-    <Link href="/" className="group flex items-center gap-2">
-      <span className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600 shadow-[0_0_20px_rgba(139,92,246,0.5)]">
-        <Globe2 className="h-4.5 w-4.5 text-white" />
+    <Link href="/" className="group flex items-center gap-2.5">
+      <span className="relative flex h-8 w-8 items-center justify-center bg-red-600 text-zinc-950 shadow-[3px_3px_0_0_#f4f4f5] transition group-hover:shadow-[1px_1px_0_0_#f4f4f5] group-hover:translate-x-0.5 group-hover:translate-y-0.5">
+        <Droplets className="h-4.5 w-4.5" strokeWidth={2.5} />
       </span>
-      <span className="text-xl font-black tracking-tight">
-        Inq<span className="bg-gradient-to-r from-violet-400 to-emerald-400 bg-clip-text text-transparent text-glow-violet">fy</span>
+      <span className="font-display text-[26px] leading-none tracking-[0.06em] text-zinc-100">
+        INQ<span className="text-red-500">FY</span>
       </span>
     </Link>
   );
@@ -76,7 +76,7 @@ export function Navbar() {
                   active ? "bg-zinc-800 text-white" : "text-zinc-400 hover:bg-zinc-900 hover:text-white",
                 )}
               >
-                <Icon className={cn("h-4 w-4", active && href === "/create" && "text-violet-400", active && href === "/feed" && "text-emerald-400")} />
+                <Icon className={cn("h-4 w-4", active && href === "/create" && "text-red-400", active && href === "/feed" && "text-emerald-400")} />
                 {label}
               </Link>
             );
@@ -100,13 +100,13 @@ export function Navbar() {
                 "flex items-center gap-2 rounded-xl border px-3 py-1.5 text-sm transition-all",
                 persona.role === "artist"
                   ? "border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/15"
-                  : "border-violet-500/40 bg-violet-500/10 hover:bg-violet-500/15",
+                  : "border-red-500/40 bg-red-500/10 hover:bg-red-500/15",
               )}
             >
               <span
                 className={cn(
                   "flex h-7 w-7 items-center justify-center rounded-full text-sm",
-                  persona.role === "artist" ? "bg-amber-500/20" : "bg-violet-500/20",
+                  persona.role === "artist" ? "bg-amber-500/20" : "bg-red-500/20",
                 )}
               >
                 {persona.flag}
@@ -149,10 +149,10 @@ export function Navbar() {
                         <span
                           className={cn(
                             "flex h-9 w-9 items-center justify-center rounded-full text-lg",
-                            p.role === "artist" ? "bg-amber-500/15" : "bg-violet-500/15",
+                            p.role === "artist" ? "bg-amber-500/15" : "bg-red-500/15",
                           )}
                         >
-                          {p.role === "artist" ? "🎨" : <UserRound className="h-4 w-4 text-violet-300" />}
+                          {p.role === "artist" ? "🎨" : <UserRound className="h-4 w-4 text-red-300" />}
                         </span>
                         <span className="flex-1">
                           <span className="block text-[10px] uppercase tracking-wider text-zinc-500">{p.label}</span>

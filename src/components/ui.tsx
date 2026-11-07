@@ -17,18 +17,18 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]",
+        "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-semibold uppercase tracking-wide transition-all disabled:opacity-50 disabled:cursor-not-allowed active:translate-x-[1px] active:translate-y-[1px]",
         size === "sm" && "px-3 py-1.5 text-xs",
         size === "md" && "px-4 py-2.5 text-sm",
         size === "lg" && "px-6 py-3.5 text-base",
         variant === "primary" && "bg-zinc-100 text-zinc-950 hover:bg-white",
         variant === "emerald" &&
-          "bg-emerald-500 text-zinc-950 hover:bg-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.35)]",
+          "bg-emerald-400 text-zinc-950 shadow-[4px_4px_0_0_#f4f4f5] hover:bg-emerald-300 hover:shadow-[2px_2px_0_0_#f4f4f5]",
         variant === "violet" &&
-          "bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white hover:from-violet-500 hover:to-fuchsia-500 shadow-[0_0_28px_rgba(139,92,246,0.4)]",
+          "bg-red-600 text-zinc-50 shadow-[4px_4px_0_0_#f4f4f5] hover:bg-red-500 hover:shadow-[2px_2px_0_0_#f4f4f5]",
         variant === "whatsapp" && "bg-[#25D366] text-zinc-950 hover:bg-[#3ae07a]",
         variant === "ghost" && "text-zinc-300 hover:bg-zinc-800 hover:text-white",
-        variant === "outline" && "border border-zinc-700 text-zinc-200 hover:border-zinc-500 hover:bg-zinc-900",
+        variant === "outline" && "border-2 border-zinc-200 text-zinc-100 hover:bg-zinc-100 hover:text-zinc-950",
         className,
       )}
       {...props}
@@ -44,7 +44,7 @@ export function Pill({
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { active?: boolean; accent?: "violet" | "emerald" | "amber" | "zinc" }) {
   const activeCls = {
-    violet: "border-violet-500 bg-violet-500/15 text-violet-200 shadow-[0_0_16px_rgba(139,92,246,0.35)]",
+    violet: "border-red-500 bg-red-500/15 text-red-200 shadow-[0_0_16px_rgba(220,38,38,0.35)]",
     emerald: "border-emerald-500 bg-emerald-500/15 text-emerald-200 shadow-[0_0_16px_rgba(16,185,129,0.35)]",
     amber: "border-amber-500 bg-amber-500/15 text-amber-200 shadow-[0_0_16px_rgba(245,158,11,0.35)]",
     zinc: "border-zinc-300 bg-zinc-100 text-zinc-950",
@@ -53,7 +53,7 @@ export function Pill({
     <button
       type="button"
       className={cn(
-        "rounded-full border px-3.5 py-1.5 text-xs sm:text-sm font-medium transition-all whitespace-nowrap",
+        "rounded-sm border px-3.5 py-1.5 text-xs sm:text-sm font-semibold uppercase tracking-wide transition-all whitespace-nowrap",
         active ? activeCls : "border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200",
         className,
       )}
@@ -68,7 +68,7 @@ export function Badge({ className, children }: { className?: string; children: R
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-medium leading-5",
+        "inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider leading-5",
         className ?? "border-zinc-700 bg-zinc-800/80 text-zinc-300",
       )}
     >
@@ -80,7 +80,7 @@ export function Badge({ className, children }: { className?: string; children: R
 export function Card({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("rounded-2xl border border-zinc-800 bg-zinc-900/80 backdrop-blur-sm", className)}
+      className={cn("rounded-lg border border-zinc-800 bg-[#121214] paper", className)}
       {...props}
     >
       {children}

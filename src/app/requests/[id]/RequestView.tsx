@@ -43,7 +43,7 @@ export function RequestView() {
   if (request === null)
     return (
       <div className="py-24 text-center text-zinc-400">
-        Request not found. <Link href="/feed" className="text-violet-300 underline">Back to feed</Link>
+        Request not found. <Link href="/feed" className="text-red-300 underline">Back to feed</Link>
       </div>
     );
 
@@ -66,7 +66,7 @@ export function RequestView() {
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-300">
             <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-zinc-500" /> {request.clientName} · {request.clientCity}, {request.clientCountry} {request.clientFlag}</span>
             <span className="flex items-center gap-1.5"><Ruler className="h-4 w-4 text-zinc-500" /> {request.bodyPart} · {request.size}</span>
-            <Badge className="border-violet-500/30 bg-violet-500/10 text-violet-200">{request.style}</Badge>
+            <Badge className="border-red-500/30 bg-red-500/10 text-red-200">{request.style}</Badge>
           </div>
 
           <div className="mt-auto grid gap-3 sm:grid-cols-2">

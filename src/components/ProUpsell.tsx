@@ -20,7 +20,7 @@ export function ProUpsell() {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-zinc-900 to-violet-600/10 p-6 sm:p-8"
+        className="relative overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-zinc-900 to-red-600/10 p-6 sm:p-8"
       >
         <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-amber-500/20 blur-3xl" />
         <div className="relative flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">

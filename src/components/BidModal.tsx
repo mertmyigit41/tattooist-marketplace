@@ -98,6 +98,7 @@ function BidForm({
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [attempted, setAttempted] = useState(false);
 
   const flight = useMemo(
     () => flightEstimate(request.clientCountry, persona.country),
@@ -112,16 +113,25 @@ function BidForm({
       message,
     );
   const noteTooShort = message.trim().length < MIN_NOTE_CHARS;
-  const valid =
-    priceNum > 0 &&
-    plan &&
-    date &&
-    selected.length === 3 &&
+  const missing = [
+    priceNum <= 0 && "enter a fixed price",
+    !plan && "pick a session plan",
+    !date && "pick an available date",
+    selected.length !== 3 &&
+      `select ${3 - selected.length} more portfolio piece${3 - selected.length === 1 ? "" : "s"}`,
+    vague && "remove the vague \"DM me / consultation\" wording",
     !vague &&
-    !noteTooShort;
+      noteTooShort &&
+      `write ${MIN_NOTE_CHARS - message.trim().length} more characters in the pitch note`,
+    profile === null && "switch to an artist persona with a studio profile",
+  ].filter(Boolean) as string[];
+  const valid = missing.length === 0 && !!profile;
 
   async function handleSubmit() {
-    if (!valid || !profile) return;
+    if (!valid || !profile) {
+      setAttempted(true);
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -384,15 +394,31 @@ function BidForm({
         ) : null}
       </Field>
 
-      {error && <p className="text-sm text-rose-400">{error}</p>}
+      {attempted && !valid && (
+        <p role="alert" className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
+          {missing.length
+            ? `Almost there — ${missing.join(", ")}.`
+            : "Studio profile is still loading, try again in a second."}
+        </p>
+      )}
+      {error && (
+        <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-sm text-rose-300">
+          {error}
+        </p>
+      )}
 
       <div className="flex items-center justify-between gap-4 border-t border-zinc-800 pt-5">
         <div className="text-sm text-zinc-400">
           {priceNum > 0 && (
-            <>
+            <div>
               Client total incl. flight:{" "}
               <b className="text-zinc-100">{eur(total)}</b>
-            </>
+            </div>
+          )}
+          {missing.length > 0 && (
+            <div className="mt-0.5 text-xs text-amber-300/90">
+              To submit: {missing.join(" · ")}
+            </div>
           )}
         </div>
         <div className="flex gap-2">
@@ -402,7 +428,9 @@ function BidForm({
           <Button
             variant="emerald"
             size="lg"
-            disabled={!valid || busy}
+            disabled={busy}
+            aria-disabled={!valid}
+            className={cn(!valid && "opacity-60")}
             onClick={handleSubmit}
           >
             {busy ? (

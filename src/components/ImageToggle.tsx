@@ -72,7 +72,7 @@ export function ImageToggle({
               "flex items-center gap-1 rounded-full px-2.5 py-1 font-medium capitalize transition",
               view === v
                 ? v === "concept"
-                  ? "bg-violet-500 text-white"
+                  ? "bg-red-500 text-white"
                   : "bg-white text-zinc-950"
                 : "text-zinc-300 hover:text-white",
             )}

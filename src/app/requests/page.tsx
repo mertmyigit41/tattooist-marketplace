@@ -33,7 +33,7 @@ export default function MyRequestsPage() {
         <div className="flex items-center justify-center gap-2 py-24 text-zinc-500"><Spinner /> Loading…</div>
       ) : mine.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-zinc-800 py-20 text-center">
-          <Sparkles className="mx-auto mb-3 h-8 w-8 text-violet-400" />
+          <Sparkles className="mx-auto mb-3 h-8 w-8 text-red-400" />
           <p className="text-zinc-400">
             {isArtist ? "Artist personas don't post requests. Switch to Client Mode (Mert) to see yours, or browse the live feed to bid." : "You haven't posted a request yet."}
           </p>

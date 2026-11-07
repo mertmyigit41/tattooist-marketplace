@@ -65,7 +65,7 @@ export default function FeedPage() {
           <select
             value={style ?? ""}
             onChange={(e) => setStyle(e.target.value || null)}
-            className="rounded-full border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-300 outline-none focus:border-violet-500"
+            className="rounded-full border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-300 outline-none focus:border-red-500"
           >
             <option value="">All styles</option>
             {STYLES.map((s) => (

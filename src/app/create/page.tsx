@@ -90,7 +90,7 @@ export default function CreatePage() {
   return (
     <div className="mx-auto max-w-5xl space-y-8">
       <header>
-        <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-violet-500/40 bg-violet-500/10 px-3 py-1 text-xs font-semibold text-violet-300">
+        <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-300">
           <Sparkles className="h-3.5 w-3.5" /> AI Tattoo & Stencil Studio
         </div>
         <h1 className="text-3xl font-black sm:text-4xl">Design it. Stencil it. Put the world&apos;s studios to work.</h1>
@@ -106,9 +106,9 @@ export default function CreatePage() {
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && generate()}
             placeholder={`e.g. "${EXAMPLE}"`}
-            className="flex-1 rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-base outline-none focus:border-violet-500"
+            className="flex-1 rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-base outline-none focus:border-red-500"
           />
-          <Button variant="ghost" size="sm" onClick={() => setPrompt(EXAMPLE)} className="shrink-0 text-violet-300">
+          <Button variant="ghost" size="sm" onClick={() => setPrompt(EXAMPLE)} className="shrink-0 text-red-300">
             <Wand2 className="h-4 w-4" /> Use example
           </Button>
         </div>
@@ -153,7 +153,7 @@ export default function CreatePage() {
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mt-6">
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <div className="flex rounded-full border border-zinc-800 bg-zinc-950 p-1 text-sm">
-                  <button onClick={() => setView("concept")} className={cn("rounded-full px-4 py-1.5 font-medium transition", view === "concept" ? "bg-violet-500 text-white" : "text-zinc-400")}>Tattoo Concept Art</button>
+                  <button onClick={() => setView("concept")} className={cn("rounded-full px-4 py-1.5 font-medium transition", view === "concept" ? "bg-red-500 text-white" : "text-zinc-400")}>Tattoo Concept Art</button>
                   <button onClick={() => setView("stencil")} className={cn("rounded-full px-4 py-1.5 font-medium transition", view === "stencil" ? "bg-white text-zinc-950" : "text-zinc-400")}>Artist-Ready Stencil</button>
                 </div>
                 <span className="text-xs text-zinc-500">
@@ -161,8 +161,8 @@ export default function CreatePage() {
                 </span>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className={cn("overflow-hidden rounded-2xl border transition", view === "concept" ? "border-violet-500 shadow-[0_0_30px_rgba(139,92,246,0.3)]" : "border-zinc-800 opacity-70")}>
-                  <div className="flex items-center justify-between px-4 py-2 text-xs font-semibold uppercase tracking-wider text-violet-300">Concept Art <span className="text-zinc-500">{style}</span></div>
+                <div className={cn("overflow-hidden rounded-2xl border transition", view === "concept" ? "border-red-500 shadow-[0_0_30px_rgba(220,38,38,0.3)]" : "border-zinc-800 opacity-70")}>
+                  <div className="flex items-center justify-between px-4 py-2 text-xs font-semibold uppercase tracking-wider text-red-300">Concept Art <span className="text-zinc-500">{style}</span></div>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={result.concept} alt="Concept" className="aspect-square w-full object-cover" />
                 </div>
@@ -255,7 +255,7 @@ export default function CreatePage() {
 function StepLabel({ n, title, accent }: { n: number; title: string; accent: "violet" | "emerald" }) {
   return (
     <div className="flex items-center gap-3">
-      <span className={cn("flex h-8 w-8 items-center justify-center rounded-full text-sm font-black", accent === "violet" ? "bg-violet-500 text-white" : "bg-emerald-500 text-zinc-950")}>{n}</span>
+      <span className={cn("flex h-8 w-8 items-center justify-center rounded-full text-sm font-black", accent === "violet" ? "bg-red-500 text-white" : "bg-emerald-500 text-zinc-950")}>{n}</span>
       <h2 className="text-xl font-bold">Step {n} · {title}</h2>
     </div>
   );

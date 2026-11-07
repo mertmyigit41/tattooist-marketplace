@@ -64,7 +64,7 @@ export function RequestCard({
           <div className="flex flex-wrap gap-1.5">
             <TravelBadge request={request} />
             <Badge>{request.bodyPart}</Badge>
-            <Badge className="border-violet-500/30 bg-violet-500/10 text-violet-200">{request.style}</Badge>
+            <Badge className="border-red-500/30 bg-red-500/10 text-red-200">{request.style}</Badge>
           </div>
 
           <div className="mt-auto flex items-center justify-between border-t border-zinc-800 pt-3">
