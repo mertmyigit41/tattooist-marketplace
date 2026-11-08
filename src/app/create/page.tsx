@@ -44,16 +44,41 @@ function CreateContent() {
   const searchParams = useSearchParams();
   const queryStyle = searchParams.get("style");
   const imageParam = searchParams.get("img");
+  const promptParam = searchParams.get("prompt");
+  const placementParam = searchParams.get("placement");
+  const travelParam = searchParams.get("travel");
+  const windowParam = searchParams.get("window");
   const initialStyle =
     queryStyle && STYLES.some((candidate) => candidate === queryStyle)
       ? queryStyle
       : STYLES[0];
+  const initialPrompt = promptParam?.trim()
+    ? promptParam
+    : queryStyle || imageParam
+      ? `Like this ${initialStyle} piece`
+      : "";
+  const initialPlacement = PLACEMENTS.some((placement) => placement.id === placementParam)
+    ? placementParam!
+    : PLACEMENTS[0].id;
+  const initialTravelMode: TravelMode =
+    travelParam === "local_only" ||
+    travelParam === "specific_destination" ||
+    travelParam === "open_worldwide"
+      ? travelParam
+      : "open_worldwide";
+  const initialWindowDays =
+    windowParam === "3" || windowParam === "7" || windowParam === "14"
+      ? Number(windowParam)
+      : 7;
 
   return (
     <CreateForm
-      key={`${queryStyle ?? ""}|${imageParam ?? ""}`}
+      key={[queryStyle, imageParam, promptParam, placementParam, travelParam, windowParam].map((value) => value ?? "").join("|")}
       initialStyle={initialStyle}
-      hasPrefill={!!queryStyle || !!imageParam}
+      initialPrompt={initialPrompt}
+      initialPlacement={initialPlacement}
+      initialTravelMode={initialTravelMode}
+      initialWindowDays={initialWindowDays}
       imageParam={imageParam}
     />
   );
@@ -61,27 +86,33 @@ function CreateContent() {
 
 function CreateForm({
   initialStyle,
-  hasPrefill,
+  initialPrompt,
+  initialPlacement,
+  initialTravelMode,
+  initialWindowDays,
   imageParam,
 }: {
   initialStyle: string;
-  hasPrefill: boolean;
+  initialPrompt: string;
+  initialPlacement: string;
+  initialTravelMode: TravelMode;
+  initialWindowDays: number;
   imageParam: string | null;
 }) {
   const router = useRouter();
   const { persona } = usePersona();
-  const [prompt, setPrompt] = useState(() => hasPrefill ? `Like this ${initialStyle} piece` : "");
+  const [prompt, setPrompt] = useState(initialPrompt);
   const [style, setStyle] = useState<string>(initialStyle);
-  const [placement, setPlacement] = useState<string>(PLACEMENTS[0].id);
+  const [placement, setPlacement] = useState<string>(initialPlacement);
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState<{ concept: string; stencil: string; source: string } | null>(() =>
     imageParam ? { concept: imageParam, stencil: imageParam, source: "curated" } : null,
   );
   const [view, setView] = useState<"concept" | "stencil">("concept");
 
-  const [travelMode, setTravelMode] = useState<TravelMode>("open_worldwide");
+  const [travelMode, setTravelMode] = useState<TravelMode>(initialTravelMode);
   const [destination, setDestination] = useState("Thailand - Nov 2026");
-  const [windowDays, setWindowDays] = useState(7);
+  const [windowDays, setWindowDays] = useState(initialWindowDays);
   const [launching, setLaunching] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

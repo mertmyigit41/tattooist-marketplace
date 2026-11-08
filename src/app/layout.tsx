@@ -18,9 +18,23 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://inqfy.app"),
   title: "Inqfy — Post your tattoo once. Studios come to you.",
-  description:
-    "Describe the piece once. Studios that fit your style reply with a fixed price, a session plan, a start date and matching work. Compare, pick, book.",
+  description: "Describe the piece once. Studios that fit your style reply with a fixed price, a session plan, a start date and matching work. Compare, pick, book.",
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "Inqfy",
+    title: "Inqfy — Post your tattoo once. Studios come to you.",
+    description: "Describe the piece once. Studios that fit your style reply with a fixed price, a session plan, a start date and matching work. Compare, pick, book.",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Inqfy — a tattoo request with four studio quotes" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Inqfy — Post your tattoo once. Studios come to you.",
+    description: "Describe the piece once. Studios that fit your style reply with a fixed price, a session plan, a start date and matching work. Compare, pick, book.",
+    images: ["/og.png"],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

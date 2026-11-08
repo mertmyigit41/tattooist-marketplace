@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -60 600 720" width="600" height="720" role="img" aria-label="Sisyphus pushing a boulder up a slope, ringed by the words Fiet, quia ego efficiam">
+  <rect x="0" y="-60" width="600" height="720" fill="#ffffff"/>
+  <defs>
+    <path id="ring" d="M 98,264 A 205,205 0 1 1 432,457"/>
+  </defs>
+  <!-- motto -->
+  <text font-family="Georgia, 'Times New Roman', serif" font-size="33" letter-spacing="5" fill="#111111">
+    <textPath href="#ring" startOffset="50%" text-anchor="middle">FIET, QUIA EGO EFFICIAM</textPath>
+  </text>
+  <!-- slope -->
+  <line x1="80" y1="470" x2="455" y2="263" stroke="#111111" stroke-width="6" stroke-linecap="round"/>
+  <!-- boulder, resting on the slope -->
+  <circle cx="300" cy="296" r="46" fill="#111111"/>
+  <!-- figure, leaning into the push -->
+  <g stroke="#111111" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- torso -->
+    <line x1="182" y1="355" x2="208" y2="312"/>
+    <!-- arms -->
+    <polyline points="208,312 232,318 254,300"/>
+    <polyline points="208,312 230,330 255,308"/>
+    <!-- back leg -->
+    <polyline points="182,355 172,390 165,423"/>
+    <!-- front leg -->
+    <polyline points="182,355 214,372 212,397"/>
+  </g>
+  <!-- head -->
+  <circle cx="224" cy="290" r="14" fill="#111111"/>
+</svg>
