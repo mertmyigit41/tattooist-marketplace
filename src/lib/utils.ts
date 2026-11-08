@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { TravelMode } from "./types";
+import type { TattooRequest, TravelMode } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -40,37 +40,15 @@ export const STYLES = [
 ] as const;
 
 export const PLACEMENTS = [
-  { id: "Full Sleeve", label: "Full Sleeve", price: 3800, size: "Large (XL)" },
-  { id: "Backpiece", label: "Backpiece", price: 4200, size: "Extra Large" },
-  { id: "Forearm", label: "Forearm", price: 650, size: "Medium" },
-  { id: "Chest", label: "Chest", price: 1400, size: "Large" },
-  { id: "Micro", label: "Micro", price: 180, size: "Small" },
+  { id: "Full Sleeve", label: "Full Sleeve", size: "Large (XL)" },
+  { id: "Backpiece", label: "Backpiece", size: "Extra Large" },
+  { id: "Forearm", label: "Forearm", size: "Medium" },
+  { id: "Chest", label: "Chest", size: "Large" },
+  { id: "Micro", label: "Micro", size: "Small" },
 ] as const;
-
-export function localPriceFor(placement: string) {
-  return PLACEMENTS.find((p) => p.id === placement)?.price ?? 900;
-}
 
 export function sizeFor(placement: string) {
   return PLACEMENTS.find((p) => p.id === placement)?.size ?? "Medium";
-}
-
-/** Estimated round-trip economy flight from Dublin to the artist's country. */
-export const FLIGHT_FROM_DUBLIN_EUR: Record<string, number> = {
-  Ireland: 0,
-  Thailand: 650,
-  Indonesia: 750,
-  Turkey: 220,
-  Poland: 90,
-  USA: 480,
-  Colombia: 780,
-  Spain: 120,
-  Germany: 110,
-};
-
-export function flightEstimate(clientCountry: string, artistCountry: string) {
-  if (clientCountry === artistCountry) return 0;
-  return FLIGHT_FROM_DUBLIN_EUR[artistCountry] ?? 500;
 }
 
 export const TRAVEL_MODE_META: Record<
@@ -78,35 +56,58 @@ export const TRAVEL_MODE_META: Record<
   { label: string; short: string; className: string }
 > = {
   local_only: {
-    label: "Local Only",
-    short: "Local Only",
-    className: "border-zinc-700 text-zinc-300",
+    label: "Near me",
+    short: "Near me",
+    className: "border-line text-fg-2",
   },
   specific_destination: {
-    label: "Planned Trip",
-    short: "Planned Trip",
-    className: "border-zinc-500 text-zinc-100",
+    label: "On a trip",
+    short: "On a trip",
+    className: "border-line-strong text-fg",
   },
   open_worldwide: {
-    label: "Open Worldwide",
-    short: "Will fly anywhere",
-    className: "border-red-500/60 text-red-300",
+    label: "Open to travel",
+    short: "Open to travel",
+    className: "border-line text-fg-2",
   },
 };
 
 export const SESSION_PLANS = [
-  "3 Consecutive Full Days (Tourist Friendly)",
+  "3 Consecutive Full Days",
   "2 Consecutive Full Days",
   "2 Full Days",
   "1 Session (4 Hours)",
   "5 Sessions over 3 Months",
 ];
 
-export const TOURIST_PERKS = [
-  "Free Airport Pickup",
-  "Hotel Partner Discount",
-  "Back-to-Back Sessions Guaranteed",
-];
+export const QUOTE_WINDOWS = [
+  { days: 3, label: "3 days" },
+  { days: 7, label: "7 days" },
+  { days: 14, label: "14 days" },
+] as const;
+
+export const DAY_MS = 86_400_000;
+
+export function isAcceptingQuotes(
+  request: Pick<TattooRequest, "status" | "closesAt">,
+  now = Date.now(),
+) {
+  return (
+    request.status === "open" &&
+    (request.closesAt === undefined || request.closesAt > now)
+  );
+}
+
+/** "4d 6h" | "6h 12m" | "12m" | "0m" */
+export function formatDuration(ms: number): string {
+  const totalMinutes = Math.max(0, Math.floor(ms / 60_000));
+  const days = Math.floor(totalMinutes / (24 * 60));
+  const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
+  const minutes = totalMinutes % 60;
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+}
 
 export function timeAgo(ts: number) {
   const diff = Date.now() - ts;

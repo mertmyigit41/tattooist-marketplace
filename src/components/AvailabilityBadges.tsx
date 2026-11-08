@@ -19,12 +19,12 @@ export function AvailabilityBadges({
   return (
     <div className="flex flex-wrap gap-1.5">
       {responseHours !== undefined && (
-        <Badge className="border-zinc-700 bg-zinc-900 text-zinc-300">
+        <Badge>
           <Clock className="h-3 w-3" /> Replies in ~{responseHours}h
         </Badge>
       )}
       {openingLabel && (
-        <Badge className="border-zinc-700 bg-zinc-900 text-zinc-300">
+        <Badge>
           <CalendarDays className="h-3 w-3" /> {openingLabel}
         </Badge>
       )}

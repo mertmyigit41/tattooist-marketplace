@@ -13,6 +13,16 @@ import { getDb } from "./firebase";
 import { col } from "./mode";
 import type { Bid, Profile, TattooRequest } from "./types";
 
+/** Re-renders every `intervalMs` with the current epoch ms; use instead of Date.now() in render. */
+export function useNow(intervalMs = 60_000) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), intervalMs);
+    return () => clearInterval(id);
+  }, [intervalMs]);
+  return now;
+}
+
 export function useRequests() {
   const [requests, setRequests] = useState<TattooRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,6 +80,34 @@ export function useBids(requestId: string | undefined) {
     });
   }, [requestId]);
   return { bids, newIds, loading };
+}
+
+export function useBidsByArtist(artistId: string | undefined) {
+  const [snapshot, setSnapshot] = useState<{
+    artistId: string;
+    bids: Bid[];
+  } | null>(null);
+  useEffect(() => {
+    if (!artistId) return;
+    const q = query(
+      collection(getDb(), col("bids")),
+      where("artistId", "==", artistId),
+    );
+    return onSnapshot(q, (snap) => {
+      const list = snap.docs.map((d) => ({
+        ...(d.data() as Bid),
+        id: d.id,
+      }));
+      list.sort((a, b) => b.createdAt - a.createdAt);
+      setSnapshot({ artistId, bids: list });
+    });
+  }, [artistId]);
+  const bids =
+    snapshot && snapshot.artistId === artistId ? snapshot.bids : [];
+  return {
+    bids,
+    loading: !!artistId && snapshot?.artistId !== artistId,
+  };
 }
 
 /** Live map of requestId -> bid count across all bids. */

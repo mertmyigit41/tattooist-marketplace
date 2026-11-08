@@ -37,10 +37,10 @@ function StudioApprovalRow({
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1 space-y-3">
           <div>
-            <h3 className="text-xl font-semibold">{profile.name}</h3>
-            <p className="mt-1 text-sm text-zinc-400">
+            <h3 className="text-xl font-medium">{profile.name}</h3>
+            <p className="mt-1 text-sm text-fg-2">
               {profile.city}, {profile.country} <CountryTag flag={profile.countryFlag ?? ""} />
-              <span className="mx-2 text-zinc-700">·</span>
+              <span className="mx-2 text-fg-3">·</span>
               Created {typeof profile.createdAt === "number"
                 ? new Date(profile.createdAt).toLocaleDateString()
                 : "date unavailable"}
@@ -52,20 +52,20 @@ function StudioApprovalRow({
           {portfolioUrls.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {portfolioUrls.map((url, index) => (
-                <div key={`${url}-${index}`} className="h-20 w-20 overflow-hidden rounded-sm border border-zinc-800 bg-zinc-900">
+                <div key={`${url}-${index}`} className="h-20 w-20 overflow-hidden rounded-md border border-line bg-raised">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={url} alt={`${profile.name} portfolio piece ${index + 1}`} className="h-full w-full object-cover" />
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-xs text-zinc-500">No portfolio images provided.</p>
+            <p className="text-xs text-fg-3">No portfolio images provided</p>
           )}
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
           <Button
             size="sm"
-            variant={action === "approve" ? "violet" : "outline"}
+            variant={action === "approve" ? "primary" : "secondary"}
             disabled={busy}
             onClick={() => onApproval(profile, action === "approve")}
           >
@@ -75,7 +75,7 @@ function StudioApprovalRow({
           <Button
             size="sm"
             variant="ghost"
-            className="text-red-400 hover:text-red-300"
+            className="text-negative hover:text-negative"
             disabled={busy}
             onClick={() => onDelete(profile)}
           >
@@ -83,7 +83,7 @@ function StudioApprovalRow({
           </Button>
         </div>
       </div>
-      {error && <p role="alert" className="mt-3 text-sm text-red-400">{error}</p>}
+      {error && <p role="alert" className="mt-3 text-sm text-negative">{error}</p>}
     </Card>
   );
 }
@@ -127,26 +127,25 @@ function AdminDashboard() {
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center gap-2 py-24 text-zinc-500"><Spinner /> Loading studios…</div>;
+    return <div className="flex items-center justify-center gap-2 py-24 text-fg-3"><Spinner /> Loading studios…</div>;
   }
 
   return (
     <div className="space-y-10">
       <header>
-        <span className="stamp text-xs text-red-500">Admin</span>
-        <h1 className="mt-3 flex items-center gap-2 text-4xl sm:text-5xl">
-          <ShieldCheck className="h-8 w-8 text-red-500" /> Studio approvals
+        <h1 className="flex items-center gap-2 font-display text-3xl sm:text-4xl">
+          <ShieldCheck className="h-8 w-8 text-fg-3" /> Studio approvals
         </h1>
-        <p className="mt-2 text-zinc-400">Review studio profiles before they can quote client requests.</p>
+        <p className="mt-2 text-fg-2">Review studio profiles before they can quote client requests</p>
       </header>
 
       <section className="space-y-4">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="text-2xl">Pending approval</h2>
-          <span className="font-mono text-xs text-zinc-500">{pending.length} studios</span>
+          <span className="font-mono text-xs text-fg-3">{pending.length} studios</span>
         </div>
         {pending.length === 0 ? (
-          <p className="rounded-md border border-dashed border-zinc-800 p-6 text-sm text-zinc-500">No studios are waiting for approval.</p>
+          <p className="rounded-2xl border border-line p-6 text-sm text-fg-3">No studios are waiting for approval</p>
         ) : (
           <div className="space-y-3">
             {pending.map((profile) => (
@@ -167,10 +166,10 @@ function AdminDashboard() {
       <section className="space-y-4">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="text-2xl">Approved studios</h2>
-          <span className="font-mono text-xs text-zinc-500">{approved.length} studios</span>
+          <span className="font-mono text-xs text-fg-3">{approved.length} studios</span>
         </div>
         {approved.length === 0 ? (
-          <p className="rounded-md border border-dashed border-zinc-800 p-6 text-sm text-zinc-500">No studios have been approved yet.</p>
+          <p className="rounded-2xl border border-line p-6 text-sm text-fg-3">No studios have been approved yet</p>
         ) : (
           <div className="space-y-3">
             {approved.map((profile) => (
@@ -195,14 +194,14 @@ export default function AdminPage() {
   const { user, loading } = useAuth();
 
   if (!IS_LIVE) {
-    return <div className="py-20 text-center text-zinc-400">Not available in the demo</div>;
+    return <div className="py-20 text-center text-fg-2">Not available in the demo</div>;
   }
   if (loading) {
-    return <div className="flex items-center justify-center gap-2 py-24 text-zinc-500"><Spinner /> Checking admin access…</div>;
+    return <div className="flex items-center justify-center gap-2 py-24 text-fg-3"><Spinner /> Checking admin access…</div>;
   }
   if (!user) {
     return (
-      <div className="flex flex-col items-center gap-4 py-20 text-center text-zinc-400">
+      <div className="flex flex-col items-center gap-4 py-20 text-center text-fg-2">
         <p>Sign in with the admin Google account to continue.</p>
         <Link href="/login"><Button>Sign in</Button></Link>
       </div>
@@ -210,7 +209,7 @@ export default function AdminPage() {
   }
   if (!isAdminUser(user)) {
     return (
-      <div className="py-20 text-center text-zinc-400">
+      <div className="py-20 text-center text-fg-2">
         Admins only. Signed in as {user.email ?? "unknown"}
         {user.emailVerified ? "" : " (email not verified — use Google sign-in)"}.
       </div>

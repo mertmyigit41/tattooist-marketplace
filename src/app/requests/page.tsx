@@ -3,6 +3,7 @@
 import { Plus, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
+import { MyQuotes } from "@/components/MyQuotes";
 import { RequestCard } from "@/components/RequestCard";
 import { Button, CountryTag, Spinner } from "@/components/ui";
 import { useBidCounts, useRequests } from "@/lib/hooks";
@@ -10,13 +11,22 @@ import { usePersona } from "@/lib/persona";
 import { LiveRoleGate } from "@/components/LiveRoleGate";
 
 export default function MyRequestsPage() {
-  return <LiveRoleGate role="client"><MyRequestsContent /></LiveRoleGate>;
+  return (
+    <LiveRoleGate>
+      <RequestsForRole />
+    </LiveRoleGate>
+  );
+}
+
+function RequestsForRole() {
+  const { isArtist } = usePersona();
+  return isArtist ? <MyQuotes /> : <MyRequestsContent />;
 }
 
 function MyRequestsContent() {
   const { requests, loading } = useRequests();
   const { counts, bumped } = useBidCounts();
-  const { persona, isArtist } = usePersona();
+  const { persona } = usePersona();
 
   const mine = useMemo(() => requests.filter((r) => r.clientId === persona.id), [requests, persona.id]);
 
@@ -24,26 +34,24 @@ function MyRequestsContent() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black sm:text-4xl">My Requests</h1>
-          <p className="mt-1 text-zinc-400">
-            Requests posted by <b className="text-zinc-200">{persona.name}</b> <CountryTag flag={persona.flag} />. Quote counts update live.
+          <h1 className="font-display text-3xl sm:text-4xl">My requests</h1>
+          <p className="mt-2 text-fg-2">
+            Requests posted by <span className="text-fg">{persona.name}</span> <CountryTag flag={persona.flag} />. Quote counts update live
           </p>
         </div>
         <Link href="/create">
-          <Button variant="violet"><Plus className="h-4 w-4" /> New Request</Button>
+          <Button><Plus className="h-4 w-4" /> New request</Button>
         </Link>
       </header>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 py-24 text-zinc-500"><Spinner /> Loading…</div>
+        <div className="flex items-center justify-center gap-2 py-24 text-fg-3"><Spinner /> Loading…</div>
       ) : mine.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-800 py-20 text-center">
-          <Sparkles className="mx-auto mb-3 h-8 w-8 text-red-400" />
-          <p className="text-zinc-400">
-            {isArtist ? "Artist personas don't post requests. Switch to Client Mode (Mert) to see yours, or browse the live feed to bid." : "You haven't posted a request yet."}
-          </p>
-          <Link href={isArtist ? "/feed" : "/create"} className="mt-4 inline-block">
-            <Button variant="outline">{isArtist ? "Go to Live Feed" : "Create your first design"}</Button>
+        <div className="rounded-2xl border border-line py-16 text-center">
+          <Sparkles className="mx-auto mb-3 h-8 w-8 text-fg-3" />
+          <p className="text-fg-2">You haven&apos;t posted a request yet</p>
+          <Link href="/create" className="mt-4 inline-block">
+            <Button variant="secondary">Create your first design</Button>
           </Link>
         </div>
       ) : (

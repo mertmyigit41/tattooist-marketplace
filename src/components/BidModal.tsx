@@ -3,13 +3,11 @@
 import { motion } from "framer-motion";
 import {
   CalendarDays,
-  Check,
   Euro,
-  Plane,
   Send,
   ShieldAlert,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { submitBid } from "@/lib/actions";
 import { useProfile } from "@/lib/hooks";
 import { usePersona } from "@/lib/persona";
@@ -17,10 +15,7 @@ import { IS_LIVE } from "@/lib/mode";
 import type { TattooRequest } from "@/lib/types";
 import {
   cn,
-  eur,
-  flightEstimate,
   SESSION_PLANS,
-  TOURIST_PERKS,
 } from "@/lib/utils";
 import { Button, CountryTag, Modal, Pill, Spinner } from "./ui";
 
@@ -62,8 +57,8 @@ export function BidModal(props: BidModalProps) {
       wide
       title={
         <span className="flex items-center gap-2">
-          Quote a fixed price
-          <span className="hidden text-sm font-normal text-zinc-500 sm:inline">
+          Send your quote
+          <span className="hidden text-sm font-normal text-fg-3 sm:inline">
             · as {persona.name} <CountryTag flag={persona.flag} />
           </span>
         </span>
@@ -71,7 +66,7 @@ export function BidModal(props: BidModalProps) {
     >
       {props.open && props.request && (
         IS_LIVE && persona.role === "artist" && !isApprovedArtist
-          ? <div className="py-10 text-center text-amber-200">Your studio is pending approval</div>
+          ? <div className="py-10 text-center text-fg-2">Your studio is pending approval</div>
           : <BidForm
               key={props.request.id + persona.id}
               {...props}
@@ -96,20 +91,13 @@ function BidForm({
   const [plan, setPlan] = useState(SESSION_PLANS[0]);
   const [date, setDate] = useState("Nov 15, 2026");
   const [customDate, setCustomDate] = useState("");
-  const [perks, setPerks] = useState<string[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [attempted, setAttempted] = useState(false);
 
-  const flight = useMemo(
-    () => flightEstimate(request.clientCountry, persona.country),
-    [request.clientCountry, persona.country],
-  );
   const priceNum = Number(price) || 0;
-  const total = priceNum + flight;
-  const savings = request.estimatedLocalPriceEur - total;
 
   const vague =
     /\b(dm me|consultation|come to (the )?studio|message me|call me)\b/i.test(
@@ -151,8 +139,6 @@ function BidForm({
         availableDate: date,
         message: message.trim(),
         selectedPortfolioUrls: selected,
-        estimatedRoundtripFlightEur: flight,
-        touristPerks: perks,
       });
       onSubmitted?.(id);
       onClose();
@@ -175,7 +161,7 @@ function BidForm({
 
   return (
     <div className="space-y-7">
-      <div className="flex items-center gap-4 rounded-xl border border-zinc-800 bg-zinc-900/60 p-3">
+      <div className="flex items-center gap-4 rounded-xl border border-line bg-raised p-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={request.conceptImageUrl}
@@ -183,71 +169,44 @@ function BidForm({
           className="h-16 w-16 rounded-lg object-cover"
         />
         <div className="min-w-0 flex-1">
-          <div className="truncate font-semibold">{request.title}</div>
-          <div className="text-xs text-zinc-400">
+          <div className="truncate font-medium">{request.title}</div>
+          <div className="text-xs text-fg-2">
             {request.clientName} · {request.clientCity}, {request.clientCountry}{" "}
             <CountryTag flag={request.clientFlag} /> · {request.bodyPart} · {request.style}
           </div>
-          <div className="mt-1 text-xs text-zinc-400">
-            Client&apos;s local baseline:{" "}
-            <span className="font-semibold text-zinc-200">
-              {eur(request.estimatedLocalPriceEur)}
-            </span>
-          </div>
         </div>
       </div>
 
-      <div className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-200/90">
-        <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
-        Power stays with the client: quotes must include a fixed price, a
-        concrete session plan, a date and 3 portfolio pieces. &quot;DM me / come
-        in for a consultation&quot; pitches are rejected.
+      <div className="flex items-start gap-2 rounded-xl border border-line bg-raised p-3 text-sm text-fg-2">
+        <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-fg-3" />
+        Clients only see complete quotes: a fixed price, a concrete session plan,
+        a start date and 3 portfolio pieces. &quot;DM me / come in for a
+        consultation&quot; pitches are rejected.
       </div>
 
       <Field label="Fixed Price (€)" icon={<Euro className="h-4 w-4" />}>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="relative flex-1">
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-lg text-zinc-500">
-              €
-            </span>
-            <input
-              type="number"
-              min={1}
-              inputMode="numeric"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="750"
-              className="w-full rounded-xl border border-zinc-800 bg-zinc-900 py-3 pl-9 pr-4 text-2xl font-bold outline-none focus:border-emerald-500"
-            />
-          </div>
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-2 text-xs text-zinc-400 sm:w-64">
-            <div className="flex items-center gap-1.5">
-              <Plane className="h-3.5 w-3.5" /> Est. flight {request.clientCity}{" "}
-              ↔ {persona.city}: <b className="text-zinc-200">{eur(flight)}</b>
-            </div>
-            {priceNum > 0 && (
-              <div
-                className={cn(
-                  "mt-1 font-semibold",
-                  savings > 0 ? "text-emerald-400" : "text-rose-400",
-                )}
-              >
-                {savings > 0
-                  ? `Client saves ${eur(savings)} vs local`
-                  : `${eur(-savings)} above local baseline`}
-              </div>
-            )}
-          </div>
+        <div className="relative">
+          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-lg text-fg-3">
+            €
+          </span>
+          <input
+            type="number"
+            min={1}
+            inputMode="numeric"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder="750"
+            className="h-12 w-full rounded-[10px] border border-line bg-raised pl-9 pr-4 font-mono text-2xl font-medium tabular-nums outline-none focus:border-fg-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          />
         </div>
       </Field>
 
-      <Field label="Session Execution Plan">
+      <Field label="Session plan">
         <div className="flex flex-wrap gap-2">
           {SESSION_PLANS.map((p) => (
             <Pill
               key={p}
               active={plan === p}
-              accent="amber"
               onClick={() => setPlan(p)}
             >
               {p}
@@ -257,7 +216,7 @@ function BidForm({
       </Field>
 
       <Field
-        label="Earliest Available Date"
+        label="Earliest start date"
         icon={<CalendarDays className="h-4 w-4" />}
       >
         <div className="flex flex-wrap items-center gap-2">
@@ -267,7 +226,6 @@ function BidForm({
               <Pill
                 key={q.label}
                 active={date === v}
-                accent="amber"
                 onClick={() => {
                   setDate(v);
                   setCustomDate("");
@@ -285,32 +243,11 @@ function BidForm({
               if (e.target.value)
                 setDate(fmt(new Date(e.target.value + "T12:00:00")));
             }}
-            className="rounded-full border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-300 outline-none focus:border-amber-500"
+            className="h-11 rounded-[10px] border border-line bg-raised px-4 text-[15px] text-fg outline-none focus:border-fg-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           />
-          <span className="text-xs text-zinc-500">
-            Selected: <b className="text-zinc-300">{date}</b>
+          <span className="text-xs text-fg-3">
+            Selected: <span className="text-fg-2">{date}</span>
           </span>
-        </div>
-      </Field>
-
-      <Field label="Tourist Perks (optional)">
-        <div className="flex flex-wrap gap-2">
-          {TOURIST_PERKS.map((p) => {
-            const on = perks.includes(p);
-            return (
-              <Pill
-                key={p}
-                active={on}
-                accent="emerald"
-                onClick={() =>
-                  setPerks((s) => (on ? s.filter((x) => x !== p) : [...s, p]))
-                }
-              >
-                {on && <Check className="mr-1 inline h-3 w-3" />}
-                {p}
-              </Pill>
-            );
-          })}
         </div>
       </Field>
 
@@ -320,10 +257,10 @@ function BidForm({
             Select 3 Matching Portfolio Pieces{" "}
             <span
               className={cn(
-                "ml-1 rounded-full px-2 py-0.5 text-[11px]",
+                "ml-1 rounded-md px-2 py-0.5 text-xs",
                 selected.length === 3
-                  ? "bg-emerald-500/20 text-emerald-300"
-                  : "bg-zinc-800 text-zinc-400",
+                  ? "border border-positive/30 bg-positive/10 text-positive"
+                  : "bg-raised text-fg-2",
               )}
             >
               {selected.length}/3
@@ -332,7 +269,7 @@ function BidForm({
         }
       >
         {!profile ? (
-          <div className="flex items-center gap-2 text-sm text-zinc-500">
+          <div className="flex items-center gap-2 text-sm text-fg-3">
             <Spinner /> Loading portfolio…
           </div>
         ) : (
@@ -347,10 +284,10 @@ function BidForm({
                   key={url}
                   onClick={() => togglePortfolio(url)}
                   className={cn(
-                    "relative aspect-square overflow-hidden rounded-xl border-2 transition",
+                    "relative aspect-square overflow-hidden rounded-md transition-colors",
                     on
-                      ? "border-emerald-400 shadow-[0_0_16px_rgba(16,185,129,0.45)]"
-                      : "border-transparent opacity-80 hover:opacity-100",
+                      ? "ring-2 ring-fg ring-offset-2 ring-offset-card"
+                      : "opacity-80 hover:opacity-100",
                   )}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -360,7 +297,7 @@ function BidForm({
                     className="h-full w-full object-cover"
                   />
                   {on && (
-                    <span className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-zinc-950">
+                    <span className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-md bg-fg text-xs font-medium text-ink">
                       {idx + 1}
                     </span>
                   )}
@@ -378,19 +315,19 @@ function BidForm({
           rows={3}
           placeholder="Why you're the right artist for this piece — technique, experience with this style, what the client can expect each day…"
           className={cn(
-            "w-full rounded-xl border bg-zinc-900 p-3 text-sm outline-none",
+            "min-h-24 w-full rounded-[10px] border bg-raised px-4 py-3 text-[15px] text-fg outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
             vague
-              ? "border-rose-500 focus:border-rose-500"
-              : "border-zinc-800 focus:border-amber-500",
+              ? "border-negative focus:border-negative"
+              : "border-line focus:border-fg-3",
           )}
         />
         {vague ? (
-          <p className="mt-1 text-xs text-rose-400">
+          <p className="mt-1 text-xs text-negative">
             Vague &quot;DM me / consultation&quot; pitches are not allowed. Give
             a concrete fixed-price plan.
           </p>
         ) : noteTooShort ? (
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-1 text-xs text-fg-3">
             {MIN_NOTE_CHARS - message.trim().length} more characters — describe
             technique, experience and what each session covers.
           </p>
@@ -398,28 +335,22 @@ function BidForm({
       </Field>
 
       {attempted && !valid && (
-        <p role="alert" className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
+        <p role="alert" className="rounded-lg border border-negative/40 bg-negative/10 px-3 py-2 text-sm text-negative">
           {missing.length
             ? `Almost there — ${missing.join(", ")}.`
             : "Studio profile is still loading, try again in a second."}
         </p>
       )}
       {error && (
-        <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-sm text-rose-300">
+        <p role="alert" className="rounded-lg border border-negative/40 bg-negative/10 px-3 py-2 text-sm text-negative">
           {error}
         </p>
       )}
 
-      <div className="flex items-center justify-between gap-4 border-t border-zinc-800 pt-5">
-        <div className="text-sm text-zinc-400">
-          {priceNum > 0 && (
-            <div>
-              Client total incl. flight:{" "}
-              <b className="text-zinc-100">{eur(total)}</b>
-            </div>
-          )}
+      <div className="flex items-center justify-between gap-4 border-t border-line pt-5">
+        <div className="text-sm text-fg-2">
           {missing.length > 0 && (
-            <div className="mt-0.5 text-xs text-amber-300/90">
+            <div className="mt-0.5 text-xs text-negative">
               To submit: {missing.join(" · ")}
             </div>
           )}
@@ -429,7 +360,6 @@ function BidForm({
             Cancel
           </Button>
           <Button
-            variant="emerald"
             size="lg"
             disabled={busy}
             aria-disabled={!valid}
@@ -437,11 +367,11 @@ function BidForm({
             onClick={handleSubmit}
           >
             {busy ? (
-              <Spinner className="border-zinc-900" />
+              <Spinner className="border-ink" />
             ) : (
               <Send className="h-4 w-4" />
             )}
-            Submit Quote
+            Submit quote
           </Button>
         </div>
       </div>
@@ -460,8 +390,8 @@ function Field({
 }) {
   return (
     <div>
-      <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-zinc-200">
-        {icon && <span className="text-zinc-500">{icon}</span>}
+      <div className="mb-2 flex items-center gap-2 text-sm font-medium text-fg">
+        {icon && <span className="text-fg-3">{icon}</span>}
         {label}
       </div>
       {children}

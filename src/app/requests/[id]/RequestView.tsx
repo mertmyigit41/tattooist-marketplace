@@ -1,57 +1,121 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, Check, Gavel, MapPin, Radio, Ruler } from "lucide-react";
+import { ArrowLeft, Check, Clock, Gavel, LayoutGrid, Link2, MapPin, Ruler, Table2 } from "lucide-react";
 import Link from "next/link";
 import { useRouteId } from "@/lib/useRouteId";
 import { useMemo, useState } from "react";
 import { AcceptModal } from "@/components/AcceptModal";
-import { ArbitrageBanner } from "@/components/ArbitrageBanner";
 import { BidModal } from "@/components/BidModal";
 import { ImageToggle } from "@/components/ImageToggle";
 import { Lightbox } from "@/components/Lightbox";
-import { bidTotal, QuoteCard } from "@/components/QuoteCard";
+import { QuoteCard } from "@/components/QuoteCard";
+import { QuoteSummary } from "@/components/QuoteSummary";
+import { QuoteTable } from "@/components/QuoteTable";
+import { RequestTimeline } from "@/components/RequestTimeline";
 import { TravelBadge } from "@/components/RequestCard";
-import { Badge, Button, Card, CountryTag, Spinner } from "@/components/ui";
-import { useBids, useRequest } from "@/lib/hooks";
+import { Badge, Button, Card, CountryTag, LiveDot, SegmentedControl, Spinner } from "@/components/ui";
+import {
+  closeRequest,
+  extendQuoteWindow,
+  setBidHidden,
+  setBidShortlisted,
+} from "@/lib/actions";
+import { useBids, useNow, useRequest } from "@/lib/hooks";
 import { usePersona } from "@/lib/persona";
 import { IS_LIVE } from "@/lib/mode";
 import type { Bid } from "@/lib/types";
-import { eur } from "@/lib/utils";
+import { formatDuration, isAcceptingQuotes, timeAgo } from "@/lib/utils";
 
-type Sort = "best" | "newest" | "price";
+type Sort = "newest" | "earliest" | "price";
+type View = "all" | "shortlist";
+type Layout = "cards" | "table";
 
 export function RequestView() {
   const id = useRouteId();
   const request = useRequest(id);
   const { bids, newIds, loading } = useBids(id);
+  const now = useNow();
   const { isArtist, isApprovedArtist, persona } = usePersona();
-  const [sort, setSort] = useState<Sort>("best");
+  const [sort, setSort] = useState<Sort>("newest");
+  const [view, setView] = useState<View>("all");
+  const [layout, setLayout] = useState<Layout>("cards");
+  const [showHidden, setShowHidden] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const [accepting, setAccepting] = useState<Bid | null>(null);
   const [bidOpen, setBidOpen] = useState(false);
   const [lb, setLb] = useState<{ urls: string[]; index: number | null }>({ urls: [], index: null });
 
   const sorted = useMemo(() => {
     const list = [...bids];
-    if (sort === "best") list.sort((a, b) => bidTotal(a) - bidTotal(b));
     if (sort === "price") list.sort((a, b) => a.priceEur - b.priceEur);
     if (sort === "newest") list.sort((a, b) => b.createdAt - a.createdAt);
+    if (sort === "earliest") {
+      list.sort((a, b) => {
+        const aTime = new Date(a.availableDate).getTime();
+        const bTime = new Date(b.availableDate).getTime();
+        if (Number.isNaN(aTime)) return Number.isNaN(bTime) ? 0 : 1;
+        if (Number.isNaN(bTime)) return -1;
+        return aTime - bTime;
+      });
+    }
     return list;
   }, [bids, sort]);
-  const bestId = useMemo(() => [...bids].sort((a, b) => bidTotal(a) - bidTotal(b))[0]?.id, [bids]);
 
-  if (request === undefined) return <div className="flex items-center justify-center gap-2 py-24 text-zinc-500"><Spinner /> Loading request…</div>;
+  if (request === undefined) return <div className="flex items-center justify-center gap-2 py-24 text-fg-3"><Spinner /> Loading request…</div>;
   if (request === null)
     return (
-      <div className="py-24 text-center text-zinc-400">
-        Request not found. <Link href="/feed" className="text-red-300 underline">Back to feed</Link>
+      <div className="py-24 text-center text-fg-2">
+        Request not found. <Link href="/feed" className="text-fg underline">Back to feed</Link>
       </div>
     );
   const canAccept = !IS_LIVE || persona.id === request.clientId;
+  const acceptingQuotes = isAcceptingQuotes(request, now);
+  const shortlisted = new Set(request.shortlistedBidIds ?? []);
+  const hidden = new Set(request.hiddenBidIds ?? []);
+  const ranked = canAccept
+    ? [
+        ...sorted.filter((bid) => shortlisted.has(bid.id)),
+        ...sorted.filter((bid) => !shortlisted.has(bid.id)),
+      ]
+    : sorted;
+  const visibleAll = canAccept
+    ? ranked.filter((bid) => !hidden.has(bid.id))
+    : ranked;
+  const shortlistCount = visibleAll.filter((bid) =>
+    shortlisted.has(bid.id),
+  ).length;
+  const visible =
+    canAccept && view === "shortlist"
+      ? visibleAll.filter((bid) => shortlisted.has(bid.id))
+      : visibleAll;
+  const hiddenList = canAccept
+    ? ranked.filter((bid) => hidden.has(bid.id))
+    : [];
+  const where =
+    request.travelMode === "specific_destination"
+      ? request.targetDestination
+      : request.travelMode === "local_only"
+        ? request.clientCity
+        : "Open to travel";
 
   return (
     <div className="space-y-8">
-      <Link href="/feed" className="inline-flex items-center gap-1 text-sm text-zinc-400 hover:text-white"><ArrowLeft className="h-4 w-4" /> Live feed</Link>
+      <div className="flex items-center justify-between">
+        <Link href="/feed" className="inline-flex items-center gap-1 text-sm text-fg-2 hover:text-fg"><ArrowLeft className="h-4 w-4" /> Live feed</Link>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1 text-sm text-fg-2 hover:text-fg"
+          onClick={async () => {
+            await navigator.clipboard.writeText(window.location.href);
+            setLinkCopied(true);
+            setTimeout(() => setLinkCopied(false), 2000);
+          }}
+        >
+          {linkCopied ? <Check className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
+          {linkCopied ? "Link copied" : "Copy link"}
+        </button>
+      </div>
 
       <Card className="grid gap-6 p-5 lg:grid-cols-[360px_1fr] lg:p-6">
         <ImageToggle concept={request.conceptImageUrl} stencil={request.stencilImageUrl} alt={request.title} className="aspect-square w-full" onClick={() => setLb({ urls: [request.conceptImageUrl], index: 0 })} />
@@ -59,71 +123,203 @@ export function RequestView() {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <TravelBadge request={request} />
-              {request.status === "booked" && <Badge className="border-emerald-500/40 bg-emerald-500/10 text-emerald-300"><Check className="h-3 w-3" /> Booked</Badge>}
+              {request.status === "booked" ? (
+                <Badge className="border-positive/30 bg-positive/10 text-positive"><Check className="h-3 w-3" /> Booked</Badge>
+              ) : request.status === "closed" ? (
+                <Badge className="border-line bg-transparent text-fg-3">Closed</Badge>
+              ) : request.closesAt && request.closesAt <= now ? (
+                <Badge className="border-line bg-transparent text-fg-3"><Clock className="h-3 w-3" /> Quotes closed</Badge>
+              ) : request.closesAt ? (
+                <Badge><Clock className="h-3 w-3" /> Closes in {formatDuration(request.closesAt - now)}</Badge>
+              ) : null}
             </div>
-            <h1 className="mt-3 text-2xl font-black sm:text-3xl">{request.title}</h1>
-            <p className="mt-2 text-zinc-400">{request.prompt}</p>
+            <h1 className="mt-3 font-display text-2xl sm:text-3xl">{request.title}</h1>
+            <p className="mt-2 text-fg-2">{request.prompt}</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-300">
-            <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-zinc-500" /> {request.clientName} · {request.clientCity}, {request.clientCountry} <CountryTag flag={request.clientFlag} /></span>
-            <span className="flex items-center gap-1.5"><Ruler className="h-4 w-4 text-zinc-500" /> {request.bodyPart} · {request.size}</span>
-            <Badge className="border-red-500/30 bg-red-500/10 text-red-200">{request.style}</Badge>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-fg-2">
+            <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-fg-3" /> {request.clientName} · {request.clientCity}, {request.clientCountry} <CountryTag flag={request.clientFlag} /></span>
+            <span className="flex items-center gap-1.5"><Ruler className="h-4 w-4 text-fg-3" /> {request.bodyPart} · {request.size}</span>
+            <Badge>{request.style}</Badge>
           </div>
 
           <div className="mt-auto grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Local Baseline Price</div>
-              <div className="text-3xl font-black">{eur(request.estimatedLocalPriceEur)}</div>
-              <div className="text-xs text-zinc-500">Estimated {request.clientCity} studio price for a {request.bodyPart.toLowerCase()}</div>
+            <div className="rounded-xl border border-line bg-raised p-4">
+              <div className="text-xs text-fg-3">Where</div>
+              <div className="mt-1 text-xl font-medium">{where}</div>
+              <div className="text-xs text-fg-3">Posted {timeAgo(request.createdAt)}</div>
             </div>
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4">
-              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-                <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" /></span>
-                Live Quotes
+            <div className="rounded-xl border border-line bg-raised p-4">
+              <div className="flex items-center gap-2 text-xs text-fg-3">
+                <LiveDot />
+                Quotes
               </div>
-              <motion.div key={bids.length} initial={{ scale: 1.3, color: "#34d399" }} animate={{ scale: 1, color: "#fafafa" }} className="text-3xl font-black">
-                {bids.length}
-              </motion.div>
-              <div className="text-xs text-zinc-500">{bids.filter((b) => b.artistCountry !== request.clientCountry).length} international · {bids.filter((b) => b.artistCountry === request.clientCountry).length} local</div>
+              <div className="mt-1 font-mono text-2xl font-medium tabular-nums">{bids.length}</div>
+              <div className="text-xs text-fg-3">
+                {bids.length} {bids.length === 1 ? "studio has" : "studios have"} replied
+              </div>
             </div>
           </div>
+          {canAccept && request.status === "open" && (
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  void extendQuoteWindow(request.id, request.closesAt, 7);
+                }}
+              >
+                <Clock className="h-4 w-4" /> Extend 7 days
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      "Close this request? Studios will no longer be able to quote. You can still accept quotes you already received.",
+                    )
+                  ) {
+                    void closeRequest(request.id);
+                  }
+                }}
+              >
+                Close request
+              </Button>
+            </div>
+          )}
           {IS_LIVE && isArtist && !isApprovedArtist && request.status === "open" ? (
-            <p className="rounded-sm border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-sm text-amber-200">
+            <p className="rounded-lg border border-line bg-raised px-3 py-2 text-sm text-fg-2">
               Your studio is pending approval
             </p>
-          ) : isArtist && isApprovedArtist && request.status === "open" && (
-            <Button variant="emerald" onClick={() => setBidOpen(true)}><Gavel className="h-4 w-4" /> Submit Quote (Bid) on this request</Button>
-          )}
+          ) : isArtist && isApprovedArtist && acceptingQuotes ? (
+            <Button onClick={() => setBidOpen(true)}><Gavel className="h-4 w-4" /> Send a quote</Button>
+          ) : isArtist && request.status === "open" && !acceptingQuotes ? (
+            <p className="text-sm text-fg-3">The quote window for this request has closed</p>
+          ) : null}
         </div>
       </Card>
 
-      <ArbitrageBanner bids={bids} request={request} />
+      <RequestTimeline request={request} bids={bids} />
+
+      <QuoteSummary bids={bids} />
 
       <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="flex items-center gap-2 text-xl font-bold"><Radio className="h-5 w-5 text-emerald-400" /> Quote Comparison ({bids.length})</h2>
-          <div className="flex rounded-full border border-zinc-800 bg-zinc-950 p-1 text-xs">
-            {([["best", "Best total value"], ["price", "Lowest tattoo price"], ["newest", "Newest"]] as [Sort, string][]).map(([k, label]) => (
-              <button key={k} onClick={() => setSort(k)} className={`rounded-full px-3 py-1.5 font-medium transition ${sort === k ? "bg-zinc-100 text-zinc-950" : "text-zinc-400 hover:text-white"}`}>{label}</button>
-            ))}
+          <h2 className="text-xl font-medium">Quotes ({bids.length})</h2>
+          <div className="flex flex-wrap items-center gap-2">
+            {canAccept && (
+              <SegmentedControl value={view} onChange={(value) => setView(value as View)} ariaLabel="Quote view" options={[{ value: "all", label: `All (${visibleAll.length})` }, { value: "shortlist", label: `Shortlisted (${shortlistCount})` }]} />
+            )}
+            <SegmentedControl value={sort} onChange={(value) => setSort(value as Sort)} ariaLabel="Sort quotes" options={[{ value: "newest", label: "Newest" }, { value: "earliest", label: "Earliest start" }, { value: "price", label: "Lowest price" }]} />
+            <SegmentedControl value={layout} onChange={(value) => setLayout(value as Layout)} ariaLabel="Quote layout" options={[{ value: "cards", label: "Cards", icon: <LayoutGrid className="h-4 w-4" /> }, { value: "table", label: "Table", icon: <Table2 className="h-4 w-4" /> }]} />
           </div>
         </div>
 
         {loading ? (
-          <div className="flex items-center gap-2 py-12 text-zinc-500"><Spinner /> Listening for quotes…</div>
+          <div className="flex items-center gap-2 py-12 text-fg-3"><Spinner /> Listening for quotes…</div>
         ) : bids.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-zinc-800 py-16 text-center text-zinc-500">
-            No quotes yet. Studios see this request in the live feed — quotes appear here instantly.
+          null
+        ) : canAccept && view === "shortlist" && visible.length === 0 ? (
+          <div className="rounded-2xl border border-line p-8 text-center text-sm text-fg-3">
+            Nothing shortlisted yet. Star the quotes you want to compare.
           </div>
+        ) : layout === "table" ? (
+          <QuoteTable
+            bids={visible}
+            request={request}
+            canAccept={canAccept}
+            shortlisted={shortlisted}
+            onAccept={setAccepting}
+            onShortlist={
+              canAccept
+                ? (bid) => {
+                    void setBidShortlisted(
+                      request.id,
+                      bid.id,
+                      !shortlisted.has(bid.id),
+                    );
+                  }
+                : undefined
+            }
+          />
         ) : (
           <motion.div layout className="grid gap-4">
             <AnimatePresence initial={false}>
-              {sorted.map((b) => (
-                <QuoteCard key={b.id} bid={b} request={request} canAccept={canAccept} isNew={newIds.has(b.id)} isBest={b.id === bestId} onAccept={setAccepting} onZoom={(urls, index) => setLb({ urls, index })} />
+              {visible.map((b) => (
+                <QuoteCard
+                  key={b.id}
+                  bid={b}
+                  request={request}
+                  canAccept={canAccept}
+                  isNew={newIds.has(b.id)}
+                  shortlisted={shortlisted.has(b.id)}
+                  onShortlist={
+                    canAccept
+                      ? (bid) => {
+                          void setBidShortlisted(
+                            request.id,
+                            bid.id,
+                            !shortlisted.has(bid.id),
+                          );
+                        }
+                      : undefined
+                  }
+                  onHide={
+                    canAccept
+                      ? (bid) => {
+                          void setBidHidden(
+                            request.id,
+                            bid.id,
+                            !hidden.has(bid.id),
+                          );
+                        }
+                      : undefined
+                  }
+                  onAccept={setAccepting}
+                  onZoom={(urls, index) => setLb({ urls, index })}
+                />
               ))}
             </AnimatePresence>
           </motion.div>
+        )}
+
+        {canAccept && hiddenList.length > 0 && (
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={() => setShowHidden((value) => !value)}
+              className="text-xs text-fg-3 hover:text-fg-2"
+            >
+              {hiddenList.length} hidden quote{hiddenList.length === 1 ? "" : "s"} · {showHidden ? "hide" : "show"}
+            </button>
+            {showHidden && (
+              <div className="grid gap-4 opacity-60">
+                {hiddenList.map((bid) => (
+                  <QuoteCard
+                    key={bid.id}
+                    bid={bid}
+                    request={request}
+                    canAccept={canAccept}
+                    shortlisted={shortlisted.has(bid.id)}
+                    hidden
+                    onShortlist={(selectedBid) => {
+                      void setBidShortlisted(
+                        request.id,
+                        selectedBid.id,
+                        !shortlisted.has(selectedBid.id),
+                      );
+                    }}
+                    onHide={(selectedBid) => {
+                      void setBidHidden(request.id, selectedBid.id, false);
+                    }}
+                    onAccept={setAccepting}
+                    onZoom={(urls, index) => setLb({ urls, index })}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </section>
 

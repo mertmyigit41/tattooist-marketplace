@@ -7,10 +7,9 @@ import { cn } from "@/lib/utils";
 
 export function StencilImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
   return (
-    <div className={cn("relative overflow-hidden bg-white", className)}>
+    <div className={cn("relative overflow-hidden bg-stencil", className)}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={src} alt={alt} className="stencil h-full w-full object-cover" draggable={false} />
-      <div className="stencil-overlay pointer-events-none absolute inset-0" />
     </div>
   );
 }
@@ -34,7 +33,7 @@ export function ImageToggle({
 }) {
   const [view, setView] = useState<"concept" | "stencil">(initial);
   return (
-    <div className={cn("group relative overflow-hidden rounded-xl bg-zinc-800", className)}>
+    <div className={cn("group relative overflow-hidden rounded-xl bg-raised", className)}>
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={view}
@@ -56,8 +55,8 @@ export function ImageToggle({
 
       <div
         className={cn(
-          "absolute left-2 top-2 z-10 flex rounded-full border border-zinc-700/80 bg-zinc-950/80 p-0.5 backdrop-blur",
-          size === "sm" ? "text-[10px]" : "text-xs",
+          "absolute left-2 top-2 z-10 flex rounded-lg border border-line bg-card p-1",
+          size === "sm" ? "text-xs" : "text-sm",
         )}
       >
         {(["concept", "stencil"] as const).map((v) => (
@@ -69,12 +68,8 @@ export function ImageToggle({
               setView(v);
             }}
             className={cn(
-              "flex items-center gap-1 rounded-full px-2.5 py-1 font-medium capitalize transition",
-              view === v
-                ? v === "concept"
-                  ? "bg-red-500 text-white"
-                  : "bg-white text-zinc-950"
-                : "text-zinc-300 hover:text-white",
+              "flex h-8 items-center gap-1 rounded-md px-2.5 font-medium capitalize transition-colors",
+              view === v ? "bg-raised text-fg" : "text-fg-2 hover:text-fg",
             )}
           >
             {v === "concept" ? <ImageIcon className="h-3 w-3" /> : <PenTool className="h-3 w-3" />}

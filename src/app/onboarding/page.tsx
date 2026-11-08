@@ -2,12 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
-import { Button, Card, Pill, Spinner } from "@/components/ui";
+import { Button, Card, LiveDot, Pill, Spinner } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
 import { getDb } from "@/lib/firebase";
 import { IMG } from "@/lib/images";
+import { useRequests } from "@/lib/hooks";
 import { col, IS_LIVE } from "@/lib/mode";
-import { STYLES } from "@/lib/utils";
+import { isAcceptingQuotes, STYLES } from "@/lib/utils";
 import { doc, setDoc } from "firebase/firestore";
 import Link from "next/link";
 
@@ -22,10 +23,12 @@ const COUNTRIES = [
   { name: "Germany", flag: "🇩🇪" },
   { name: "Other", flag: "" },
 ];
+const INPUT_CLASS = "mt-1 h-11 w-full rounded-[10px] border border-line bg-raised px-4 text-[15px] text-fg outline-none placeholder:text-fg-3 focus:border-fg-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
 export default function OnboardingPage() {
   const router = useRouter();
   const { user, profile, loading } = useAuth();
+  const { requests } = useRequests();
   const [role, setRole] = useState<"client" | "artist" | null>(null);
   const [name, setName] = useState("");
   const [city, setCity] = useState("");
@@ -36,6 +39,10 @@ export default function OnboardingPage() {
   const [urls, setUrls] = useState<string[]>([""]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const matchingRequestCount = requests.filter(
+    (request) =>
+      isAcceptingQuotes(request) && styles.includes(request.style),
+  ).length;
 
   useEffect(() => {
     if (!IS_LIVE || loading) return;
@@ -86,44 +93,43 @@ export default function OnboardingPage() {
   }
 
   if (!IS_LIVE) {
-    return <div className="py-16 text-center text-zinc-400">Account setup is available on the live app.</div>;
+    return <div className="py-16 text-center text-fg-2">Account setup is available on the live app</div>;
   }
   if (loading || !user || profile) {
-    return <div className="py-24 text-center text-zinc-500"><Spinner /> Loading account…</div>;
+    return <div className="py-24 text-center text-fg-3"><Spinner /> Loading account…</div>;
   }
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <header>
-        <span className="stamp text-xs text-red-500">Set up your profile</span>
-        <h1 className="mt-3 text-4xl sm:text-5xl">Who are you here as?</h1>
+        <h1 className="font-display text-3xl sm:text-4xl">Who are you here as?</h1>
       </header>
       <div className="grid gap-3 sm:grid-cols-2">
-        <button onClick={() => setRole("client")} className={`rounded-md border p-5 text-left ${role === "client" ? "border-red-500 bg-red-500/10" : "border-zinc-800 bg-zinc-950"}`}>
-          <span className="font-display text-2xl">I want a tattoo</span>
-          <span className="mt-1 block text-sm text-zinc-400">Post a design and compare studio quotes.</span>
+        <button onClick={() => setRole("client")} className={`rounded-2xl border p-5 text-left transition-colors ${role === "client" ? "border-fg bg-fg text-ink" : "border-line bg-card"}`}>
+          <span className="text-xl font-medium">I want a tattoo</span>
+          <span className={`mt-1 block text-sm ${role === "client" ? "text-ink/70" : "text-fg-2"}`}>Post a design and compare studio quotes</span>
         </button>
-        <button onClick={() => setRole("artist")} className={`rounded-md border p-5 text-left ${role === "artist" ? "border-red-500 bg-red-500/10" : "border-zinc-800 bg-zinc-950"}`}>
-          <span className="font-display text-2xl">I run a studio</span>
-          <span className="mt-1 block text-sm text-zinc-400">Build a studio profile and quote requests.</span>
+        <button onClick={() => setRole("artist")} className={`rounded-2xl border p-5 text-left transition-colors ${role === "artist" ? "border-fg bg-fg text-ink" : "border-line bg-card"}`}>
+          <span className="text-xl font-medium">I run a studio</span>
+          <span className={`mt-1 block text-sm ${role === "artist" ? "text-ink/70" : "text-fg-2"}`}>Build a studio profile and quote requests</span>
         </button>
       </div>
 
       {role && (
         <Card className="p-6">
           <form onSubmit={submit} className="space-y-5">
-            <label className="block text-sm text-zinc-300">
+            <label className="block text-sm font-medium text-fg">
               {role === "artist" ? "Studio name" : "Your name"}
-              <input required value={name} onChange={(event) => setName(event.target.value)} className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2.5 outline-none focus:border-red-500" />
+              <input required value={name} onChange={(event) => setName(event.target.value)} className={INPUT_CLASS} />
             </label>
             <div className="grid gap-4 sm:grid-cols-2">
-              <label className="block text-sm text-zinc-300">
+              <label className="block text-sm font-medium text-fg">
                 City
-                <input required value={city} onChange={(event) => setCity(event.target.value)} className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2.5 outline-none focus:border-red-500" />
+                <input required value={city} onChange={(event) => setCity(event.target.value)} className={INPUT_CLASS} />
               </label>
-              <label className="block text-sm text-zinc-300">
+              <label className="block text-sm font-medium text-fg">
                 Country
-                <select value={country} onChange={(event) => setCountry(event.target.value)} className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2.5 outline-none focus:border-red-500">
+                <select value={country} onChange={(event) => setCountry(event.target.value)} className={INPUT_CLASS}>
                   {COUNTRIES.map((entry) => <option key={entry.name}>{entry.name}</option>)}
                 </select>
               </label>
@@ -131,22 +137,28 @@ export default function OnboardingPage() {
 
             {role === "artist" && (
               <>
-                <label className="block text-sm text-zinc-300">
+                <label className="block text-sm font-medium text-fg">
                   Hourly rate (€)
-                  <input required type="number" min="1" value={rate} onChange={(event) => setRate(event.target.value)} className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2.5 outline-none focus:border-red-500" />
+                  <input required type="number" min="1" value={rate} onChange={(event) => setRate(event.target.value)} className={INPUT_CLASS} />
                 </label>
-                <label className="block text-sm text-zinc-300">
+                <label className="block text-sm font-medium text-fg">
                   Studio bio
-                  <textarea required rows={3} value={bio} onChange={(event) => setBio(event.target.value)} className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2.5 outline-none focus:border-red-500" />
+                  <textarea required rows={3} value={bio} onChange={(event) => setBio(event.target.value)} className="mt-1 min-h-24 w-full rounded-[10px] border border-line bg-raised px-4 py-3 text-[15px] text-fg outline-none focus:border-fg-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" />
                 </label>
                 <div>
-                  <div className="mb-2 text-sm text-zinc-300">Styles</div>
+                  <div className="mb-2 text-sm font-medium text-fg">Styles</div>
                   <div className="flex flex-wrap gap-2">
-                    {STYLES.map((style) => <Pill key={style} active={styles.includes(style)} accent="zinc" onClick={() => toggleStyle(style)}>{style}</Pill>)}
+                    {STYLES.map((style) => <Pill key={style} active={styles.includes(style)} onClick={() => toggleStyle(style)}>{style}</Pill>)}
                   </div>
+                  {styles.length > 0 && (
+                    <p className="mt-2 text-xs text-fg-2">
+                      <LiveDot />{" "}
+                      {matchingRequestCount} open request{matchingRequestCount === 1 ? "" : "s"} in these styles right now
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <div className="text-sm text-zinc-300">Portfolio image URLs (up to 6)</div>
+                  <div className="text-sm font-medium text-fg">Portfolio image URLs (up to 6)</div>
                   {urls.map((url, index) => (
                     <input
                       key={index}
@@ -155,23 +167,23 @@ export default function OnboardingPage() {
                       onChange={(event) => setUrls((current) => current.map((value, i) => i === index ? event.target.value : value))}
                       placeholder="https://…"
                       aria-label={`Portfolio image URL ${index + 1}`}
-                      className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm outline-none focus:border-red-500"
+                      className={INPUT_CLASS}
                     />
                   ))}
                   {urls.length < 6 && <Button type="button" variant="ghost" size="sm" onClick={() => setUrls((current) => [...current, ""])}>Add image URL</Button>}
                 </div>
-                <p className="text-xs text-zinc-500">New studio profiles are reviewed before quoting is enabled.</p>
+                <p className="text-xs text-fg-3">New studio profiles are reviewed before quoting is enabled</p>
               </>
             )}
 
-            {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
-            <Button type="submit" variant="violet" disabled={busy || (role === "artist" && styles.length === 0)} className="w-full sm:w-auto">
-              {busy ? <Spinner className="border-white" /> : null} Save profile
+            {error && <p role="alert" className="text-sm text-negative">{error}</p>}
+            <Button type="submit" disabled={busy || (role === "artist" && styles.length === 0)} className="w-full sm:w-auto">
+              {busy ? <Spinner className="border-ink" /> : null} Save profile
             </Button>
           </form>
         </Card>
       )}
-      <Link href="/" className="text-xs text-zinc-500 underline">Return to feed</Link>
+      <Link href="/" className="text-xs text-fg-3 underline">Return to feed</Link>
     </div>
   );
 }

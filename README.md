@@ -1,8 +1,6 @@
 # Inqfy
 
-Reverse marketplace and global price-arbitrage platform for tattoos — "Thumbtack meets global tattoo tourism".
-Clients post a design, artists worldwide send fixed-price quotes, and the client compares
-**tattoo price + estimated flight** against the local baseline, live.
+Reverse marketplace for tattoos. Clients post a design once; studios that fit the style reply with complete fixed-price quotes (price, session plan, start date, matching portfolio pieces). Clients compare and book — no studio-hopping, no “DM for price”.
 
 Stack: Next.js (App Router, static export), TypeScript, Tailwind CSS, Framer Motion, Lucide, Firebase Firestore (modular SDK).
 

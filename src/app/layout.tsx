@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
 import { IS_LIVE } from "@/lib/mode";
@@ -10,18 +10,23 @@ import { AutoSeed } from "@/components/AutoSeed";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
-const bebas = Bebas_Neue({ variable: "--font-bebas", weight: "400", subsets: ["latin"] });
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  weight: "variable",
+  subsets: ["latin"],
+  axes: ["opsz"],
+});
 
 export const metadata: Metadata = {
-  title: "Inqfy — Fixed-price tattoo quotes from studios worldwide",
+  title: "Inqfy — Post your tattoo once. Studios come to you.",
   description:
-    "Post the design once. Studios from Istanbul to Bangkok bid a fixed price. We add the flight and show what you really save.",
+    "Describe the piece once. Studios that fit your style reply with a fixed price, a session plan, a start date and matching work. Compare, pick, book.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${bebas.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-zinc-950 text-zinc-100">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full`}>
+      <body className="min-h-full flex flex-col bg-page text-fg">
         <AuthProvider>
           <PersonaProvider>
             {!IS_LIVE && <AutoSeed />}

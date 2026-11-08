@@ -33,19 +33,19 @@ export function Lightbox({
     <AnimatePresence>
       {open && index !== null && (
         <motion.div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 p-4 backdrop-blur"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
         >
-          <button className="absolute right-4 top-4 rounded-full bg-zinc-900/80 p-2 text-zinc-200 hover:bg-zinc-800" onClick={onClose} aria-label="Close">
+          <button className="absolute right-4 top-4 rounded-lg bg-card p-2 text-fg-2 hover:bg-raised" onClick={onClose} aria-label="Close">
             <X className="h-5 w-5" />
           </button>
           {images.length > 1 && (
             <>
               <button
-                className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-zinc-900/80 p-2 text-zinc-200 hover:bg-zinc-800"
+                className="absolute left-4 top-1/2 -translate-y-1/2 rounded-lg bg-card p-2 text-fg-2 hover:bg-raised"
                 onClick={(e) => {
                   e.stopPropagation();
                   onIndex((index - 1 + images.length) % images.length);
@@ -55,7 +55,7 @@ export function Lightbox({
                 <ChevronLeft className="h-6 w-6" />
               </button>
               <button
-                className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-zinc-900/80 p-2 text-zinc-200 hover:bg-zinc-800"
+                className="absolute right-4 top-1/2 -translate-y-1/2 rounded-lg bg-card p-2 text-fg-2 hover:bg-raised"
                 onClick={(e) => {
                   e.stopPropagation();
                   onIndex((index + 1) % images.length);
@@ -70,13 +70,13 @@ export function Lightbox({
             key={images[index]}
             src={images[index]}
             alt="Portfolio"
-            initial={{ scale: 0.92, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="max-h-[85vh] max-w-[92vw] rounded-2xl object-contain shadow-2xl"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            className="max-h-[85vh] max-w-[92vw] rounded-2xl object-contain"
             onClick={(e) => e.stopPropagation()}
           />
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-zinc-900/80 px-3 py-1 text-xs text-zinc-300">
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-lg bg-card px-3 py-1 text-xs text-fg-2">
             {caption ? `${caption} · ` : ""}
             {index + 1} / {images.length}
           </div>

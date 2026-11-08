@@ -11,7 +11,7 @@ export function LiveRoleGate({
   role,
   children,
 }: {
-  role: Role;
+  role?: Role;
   children: React.ReactNode;
 }) {
   const router = useRouter();
@@ -24,11 +24,11 @@ export function LiveRoleGate({
   }, [loading, profile, router, user]);
 
   if (!IS_LIVE) return children;
-  if (loading) return <div className="py-24 text-center text-zinc-500"><Spinner /> Loading account…</div>;
-  if (!user || !profile) return <div className="py-24 text-center text-zinc-500">Redirecting…</div>;
-  if (profile.role !== role) {
+  if (loading) return <div className="py-24 text-center text-fg-3"><Spinner /> Loading account…</div>;
+  if (!user || !profile) return <div className="py-24 text-center text-fg-3">Redirecting…</div>;
+  if (role && profile.role !== role) {
     return (
-      <div className="py-24 text-center text-zinc-400">
+      <div className="py-24 text-center text-fg-2">
         This page is for {role === "client" ? "clients" : "studios"}.
       </div>
     );

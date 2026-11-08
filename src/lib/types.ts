@@ -2,7 +2,7 @@ export type Role = "client" | "artist";
 
 export type TravelMode = "local_only" | "specific_destination" | "open_worldwide";
 
-export type RequestStatus = "open" | "booked";
+export type RequestStatus = "open" | "booked" | "closed";
 
 export interface Profile {
   id: string;
@@ -42,7 +42,9 @@ export interface TattooRequest {
   stencilImageUrl: string;
   travelMode: TravelMode;
   targetDestination: string;
-  estimatedLocalPriceEur: number;
+  closesAt?: number;
+  shortlistedBidIds?: string[];
+  hiddenBidIds?: string[];
   status: RequestStatus;
   createdAt: number;
 }
@@ -61,8 +63,6 @@ export interface Bid {
   availableDate: string;
   message: string;
   selectedPortfolioUrls: string[];
-  estimatedRoundtripFlightEur: number;
-  touristPerks: string[];
   createdAt: number;
   status?: "accepted";
 }

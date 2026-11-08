@@ -6,12 +6,21 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
 import { ImageToggle, StencilImage } from "@/components/ImageToggle";
 import { LiveRoleGate } from "@/components/LiveRoleGate";
-import { Button, Card, Pill, Spinner } from "@/components/ui";
+import { ReachPreview } from "@/components/ReachPreview";
+import { Button, Card, Pill, SegmentedControl, Spinner } from "@/components/ui";
 import { createRequest } from "@/lib/actions";
 import { STYLE_CONCEPTS } from "@/lib/images";
 import { usePersona } from "@/lib/persona";
 import type { TravelMode } from "@/lib/types";
-import { cn, eur, localPriceFor, PLACEMENTS, sizeFor, STYLES } from "@/lib/utils";
+import {
+  cn,
+  DAY_MS,
+  PLACEMENTS,
+  QUOTE_WINDOWS,
+  sizeFor,
+  STYLES,
+  TRAVEL_MODE_META,
+} from "@/lib/utils";
 
 const EXAMPLE = "Japanese Irezumi dragon coiling around cherry blossoms and waves";
 
@@ -24,7 +33,7 @@ function hash(s: string) {
 export default function CreatePage() {
   return (
     <LiveRoleGate role="client">
-      <Suspense fallback={<div className="py-24 text-center text-zinc-500"><Spinner /> Loading design studio…</div>}>
+      <Suspense fallback={<div className="py-24 text-center text-fg-3"><Spinner /> Loading design studio…</div>}>
         <CreateContent />
       </Suspense>
     </LiveRoleGate>
@@ -72,10 +81,10 @@ function CreateForm({
 
   const [travelMode, setTravelMode] = useState<TravelMode>("open_worldwide");
   const [destination, setDestination] = useState("Thailand - Nov 2026");
+  const [windowDays, setWindowDays] = useState(7);
   const [launching, setLaunching] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const localPrice = localPriceFor(placement);
   const title = useMemo(() => {
     const p = prompt.trim();
     if (!p) return "";
@@ -118,7 +127,7 @@ function CreateForm({
         stencilImageUrl: result.stencil,
         travelMode,
         targetDestination: travelMode === "specific_destination" ? destination : "",
-        estimatedLocalPriceEur: localPrice,
+        closesAt: Date.now() + windowDays * DAY_MS,
       });
       router.push(`/requests/${id}`);
     } catch (e) {
@@ -130,41 +139,41 @@ function CreateForm({
   return (
     <div className="mx-auto max-w-5xl space-y-8">
       <header>
-        <div className="mb-2"><span className="stamp text-sm text-red-500">Design studio</span></div>
-        <h1 className="text-3xl font-black sm:text-4xl">Describe it. We draw it. Studios bid on it.</h1>
-        <p className="mt-2 text-zinc-400">Get a concept and a clean stencil, then post it to studios worldwide.</p>
+        <h1 className="font-display text-3xl sm:text-4xl">Describe it once. Studios come to you</h1>
+        <p className="mt-2 text-fg-2">Get a concept and a clean stencil, then post it. Studios reply with complete fixed-price quotes</p>
       </header>
 
       <Card className="p-6 sm:p-8">
         <StepLabel n={1} title="Draw the design" />
-        <label className="mt-5 block text-sm font-semibold text-zinc-200">Your tattoo idea</label>
+        <label className="mt-5 block text-sm font-medium text-fg">Your tattoo idea</label>
         <div className="mt-2 flex flex-col gap-2 sm:flex-row">
           <input
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && generate()}
             placeholder={`e.g. "${EXAMPLE}"`}
-            className="flex-1 rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-base outline-none focus:border-red-500"
+            className="h-11 flex-1 rounded-[10px] border border-line bg-raised px-4 text-[15px] text-fg outline-none placeholder:text-fg-3 focus:border-fg-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           />
-          <Button variant="ghost" size="sm" onClick={() => setPrompt(EXAMPLE)} className="shrink-0 text-red-300">
+          <Button variant="ghost" size="sm" onClick={() => setPrompt(EXAMPLE)} className="shrink-0">
             <Wand2 className="h-4 w-4" /> Use example
           </Button>
         </div>
 
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           <div>
-            <div className="mb-2 text-sm font-semibold text-zinc-200">Style</div>
+            <div className="mb-2 text-sm font-medium text-fg">Style</div>
             <div className="flex flex-wrap gap-2">
               {STYLES.map((s) => (
-                <Pill key={s} active={style === s} accent="violet" onClick={() => setStyle(s)}>{s}</Pill>
+                <Pill key={s} active={style === s} onClick={() => setStyle(s)}>{s}</Pill>
               ))}
             </div>
+            <ReachPreview style={style} className="mt-2" />
           </div>
           <div>
-            <div className="mb-2 text-sm font-semibold text-zinc-200">Body Placement & Scale</div>
+            <div className="mb-2 text-sm font-medium text-fg">Body placement and scale</div>
             <div className="flex flex-wrap gap-2">
               {PLACEMENTS.map((p) => (
-                <Pill key={p.id} active={placement === p.id} accent="violet" onClick={() => setPlacement(p.id)}>
+                <Pill key={p.id} active={placement === p.id} onClick={() => setPlacement(p.id)}>
                   {p.label}
                 </Pill>
               ))}
@@ -173,7 +182,7 @@ function CreateForm({
         </div>
 
         <div className="mt-6">
-          <Button variant="violet" size="lg" onClick={generate} disabled={!prompt.trim() || generating} className="w-full sm:w-auto">
+          <Button size="lg" onClick={generate} disabled={!prompt.trim() || generating} className="w-full sm:w-auto">
             {generating ? <Spinner className="border-white" /> : <Sparkles className="h-5 w-5" />}
             {generating ? "Drawing…" : "Draw concept + stencil"}
           </Button>
@@ -183,27 +192,29 @@ function CreateForm({
           {generating && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-6 grid gap-4 sm:grid-cols-2">
               {[0, 1].map((i) => (
-                <div key={i} className="aspect-square animate-pulse rounded-2xl bg-gradient-to-br from-zinc-800 via-zinc-900 to-zinc-800" />
+                <div key={i} className="aspect-square animate-pulse rounded-2xl bg-raised" />
               ))}
             </motion.div>
           )}
           {result && !generating && (
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mt-6">
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <div className="flex rounded-full border border-zinc-800 bg-zinc-950 p-1 text-sm">
-                  <button onClick={() => setView("concept")} className={cn("rounded-full px-4 py-1.5 font-medium transition", view === "concept" ? "bg-red-500 text-white" : "text-zinc-400")}>Tattoo Concept Art</button>
-                  <button onClick={() => setView("stencil")} className={cn("rounded-full px-4 py-1.5 font-medium transition", view === "stencil" ? "bg-white text-zinc-950" : "text-zinc-400")}>Artist-Ready Stencil</button>
-                </div>
-                <span className="text-xs text-zinc-500">Curated concept + stencil filter (demo)</span>
+                <SegmentedControl
+                  value={view}
+                  onChange={(value) => setView(value as "concept" | "stencil")}
+                  ariaLabel="Preview type"
+                  options={[{ value: "concept", label: "Tattoo concept" }, { value: "stencil", label: "Artist-ready stencil" }]}
+                />
+                <span className="text-xs text-fg-3">Curated concept + stencil filter (demo)</span>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className={cn("overflow-hidden rounded-2xl border transition", view === "concept" ? "border-zinc-100" : "border-zinc-800 opacity-70")}>
-                  <div className="flex items-center justify-between px-4 py-2 text-xs font-semibold uppercase tracking-wider text-red-300">Concept Art <span className="text-zinc-500">{style}</span></div>
+                <div className={cn("overflow-hidden rounded-2xl border transition-colors", view === "concept" ? "border-fg" : "border-line opacity-70")}>
+                  <div className="flex items-center justify-between px-4 py-2 text-xs font-medium text-fg-2">Concept art <span className="text-fg-3">{style}</span></div>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={result.concept} alt="Concept" className="aspect-square w-full object-cover" />
                 </div>
-                <div className={cn("overflow-hidden rounded-2xl border transition", view === "stencil" ? "border-zinc-100" : "border-zinc-800 opacity-70")}>
-                  <div className="flex items-center justify-between px-4 py-2 text-xs font-semibold uppercase tracking-wider text-zinc-300">Stencil · B&W Line Art <span className="text-zinc-500">{placement}</span></div>
+                <div className={cn("overflow-hidden rounded-2xl border transition-colors", view === "stencil" ? "border-fg" : "border-line opacity-70")}>
+                  <div className="flex items-center justify-between px-4 py-2 text-xs font-medium text-fg-2">Stencil · B&amp;W line art <span className="text-fg-3">{placement}</span></div>
                   <StencilImage src={result.stencil} alt="Stencil" className="aspect-square w-full" />
                 </div>
               </div>
@@ -214,35 +225,35 @@ function CreateForm({
 
       <AnimatePresence>
         {result && !generating && (
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}>
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
             <Card className="p-6 sm:p-8">
               <StepLabel n={2} title="Post it to studios" />
 
               <div className="mt-5 grid gap-6 lg:grid-cols-[1fr_300px]">
                 <div className="space-y-5">
                   <div>
-                    <div className="mb-2 text-sm font-semibold text-zinc-200">Location & Travel Mode</div>
+                    <div className="mb-2 text-sm font-medium text-fg">Where do you want it done?</div>
                     <div className="grid gap-2 sm:grid-cols-3">
                       <ModeCard
                         active={travelMode === "local_only"}
                         onClick={() => setTravelMode("local_only")}
                         icon={<MapPin className="h-5 w-5" />}
-                        title="Local only"
+                        title="Near me"
                         text={`${persona.city}, ${persona.country}`}
                       />
                       <ModeCard
                         active={travelMode === "specific_destination"}
                         onClick={() => setTravelMode("specific_destination")}
                         icon={<Plane className="h-5 w-5" />}
-                        title="Planned trip"
-                        text="Where and when"
+                        title="On a trip"
+                        text="Tell studios where and when"
                       />
                       <ModeCard
                         active={travelMode === "open_worldwide"}
                         onClick={() => setTravelMode("open_worldwide")}
                         icon={<Globe2 className="h-5 w-5" />}
                         title="Anywhere"
-                        text="I'll fly if the total beats home"
+                        text="Open to travelling for the right artist"
                       />
                     </div>
                     {travelMode === "specific_destination" && (
@@ -252,29 +263,49 @@ function CreateForm({
                         value={destination}
                         onChange={(e) => setDestination(e.target.value)}
                         placeholder='e.g. "Thailand - Nov 2026"'
-                        className="mt-3 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-2.5 text-sm outline-none focus:border-zinc-300"
+                        className="mt-3 h-11 w-full rounded-[10px] border border-line bg-raised px-4 text-[15px] text-fg outline-none placeholder:text-fg-3 focus:border-fg-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                       />
                     )}
                   </div>
 
                   <div>
-                    <div className="mb-1 text-sm font-semibold text-zinc-200">Request title</div>
-                    <div className="rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-2.5 text-sm text-zinc-300">{title}</div>
+                    <div className="mb-2 text-sm font-medium text-fg">Accept quotes for</div>
+                    <div className="flex flex-wrap gap-2">
+                      {QUOTE_WINDOWS.map((option) => (
+                        <Pill
+                          key={option.days}
+                          active={windowDays === option.days}
+                          onClick={() => setWindowDays(option.days)}
+                        >
+                          {option.label}
+                        </Pill>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="mb-1 text-sm font-medium text-fg">Request title</div>
+                    <div className="rounded-xl border border-line bg-raised px-4 py-2.5 text-sm text-fg-2">{title}</div>
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-3 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4">
+                <div className="flex flex-col gap-3 rounded-xl border border-line bg-raised p-4">
                   <ImageToggle concept={result.concept} stencil={result.stencil} alt={title} size="sm" className="aspect-square w-full" />
                   <div>
-                    <div className="text-[11px] uppercase tracking-wider text-zinc-500">Estimated local price in {persona.country}</div>
-                    <div className="text-3xl font-black">{eur(localPrice)}</div>
-                    <div className="text-xs text-zinc-500">{placement} · {sizeFor(placement)} · {style}</div>
+                    <div className="text-xs text-fg-3">Your request</div>
+                    <div className="mt-1 text-sm font-medium text-fg">{placement} · {sizeFor(placement)}</div>
+                    <div className="text-sm text-fg-2">{style}</div>
+                    <div className="text-sm text-fg-2">{TRAVEL_MODE_META[travelMode].label}</div>
+                    <div className="text-sm text-fg-2">
+                      Quotes close in {QUOTE_WINDOWS.find((option) => option.days === windowDays)?.label}
+                    </div>
+                    <ReachPreview style={style} className="mt-1" />
                   </div>
-                  <Button variant="violet" size="lg" onClick={launch} disabled={launching} className="mt-auto w-full">
-                    {launching && <Spinner className="border-white" />}
-                    Post it — get quotes <ArrowRight className="h-4 w-4" />
+                  <Button size="lg" onClick={launch} disabled={launching} className="mt-auto w-full">
+                    {launching && <Spinner className="border-ink" />}
+                    Post request — get quotes <ArrowRight className="h-4 w-4" />
                   </Button>
-                  {error && <p className="text-xs text-rose-400">{error}</p>}
+                  {error && <p className="text-xs text-negative">{error}</p>}
                 </div>
               </div>
             </Card>
@@ -288,18 +319,18 @@ function CreateForm({
 function StepLabel({ n, title }: { n: number; title: string }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="font-display text-4xl text-red-500">{String(n).padStart(2, "0")}</span>
-      <h2 className="text-xl font-bold">{title}</h2>
+      <span className="font-mono text-xs text-fg-3">{String(n).padStart(2, "0")}</span>
+      <h2 className="text-xl font-medium">{title}</h2>
     </div>
   );
 }
 
 function ModeCard({ active, onClick, icon, title, text }: { active: boolean; onClick: () => void; icon: React.ReactNode; title: string; text: string }) {
   return (
-    <button type="button" onClick={onClick} className={cn("rounded-xl border p-3 text-left transition", active ? "border-zinc-100 bg-zinc-100 text-zinc-950" : "border-zinc-800 bg-zinc-950 hover:border-zinc-600")}>
-      <div className={cn("mb-1", active ? "text-zinc-950" : "text-zinc-500")}>{icon}</div>
-      <div className="text-sm font-semibold">{title}</div>
-      <div className={cn("text-xs", active ? "text-zinc-700" : "text-zinc-400")}>{text}</div>
+    <button type="button" onClick={onClick} className={cn("rounded-xl border border-line bg-raised p-3 text-left transition-colors", active ? "border-fg bg-fg text-ink" : "hover:border-line-strong")}>
+      <div className="mb-1">{icon}</div>
+      <div className="text-sm font-medium">{title}</div>
+      <div className={cn("text-xs", active ? "text-ink/70" : "text-fg-2")}>{text}</div>
     </button>
   );
 }

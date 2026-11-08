@@ -1,113 +1,72 @@
-"use client";
-
-import { motion } from "framer-motion";
-import { ArrowRight, Plane, Sparkles } from "lucide-react";
+import { CalendarDays, CalendarRange, Clock, Euro, Image as ImageIcon, Images, MapPin, Palette, Plus, Ruler } from "lucide-react";
 import Link from "next/link";
-import { SearchBar } from "@/components/SearchBar";
-import { Button } from "@/components/ui";
-import { CITIES } from "@/lib/cities";
+import { HeroQuoteStack } from "@/components/HeroQuoteStack";
+import { LiveRequestsTeaser } from "@/components/LiveRequestsTeaser";
+import { Button, Card } from "@/components/ui";
 import { FLAGSHIP_REQUEST_ID } from "@/lib/seed";
-import { eur } from "@/lib/utils";
 
 const STEPS = [
-  { n: "01", title: "Post the design", text: "Describe it, pick style and placement, get a concept and a clean stencil. One post, no studio-hopping." },
-  { n: "02", title: "Studios bid a fixed price", text: "Verified studios from Istanbul to Bangkok answer with a number, a session plan and three matching pieces. No “DM for price”." },
-  { n: "03", title: "Count the flight, keep the change", text: "We add the roundtrip fare and compare the landed cost against your local baseline. Then you talk to the artist on WhatsApp." },
+  { n: "01", title: "Post once", text: "Describe the piece, pick style and placement, get a concept and a clean stencil. One post instead of a dozen DMs." },
+  { n: "02", title: "Studios come to you", text: "Studios that work in your style reply with a fixed price, a session plan, a start date and three matching pieces. No chasing, no “DM for price”." },
+  { n: "03", title: "You pick, you talk", text: "Compare the quotes side by side, accept one and continue on WhatsApp. Inqfy takes 0% commission." },
+];
+const QUOTE_REQUIREMENTS = [
+  { icon: Euro, title: "A fixed price", text: "A number, not “DM for price”" },
+  { icon: CalendarRange, title: "A session plan", text: "How many sessions, how long, in what order" },
+  { icon: CalendarDays, title: "A start date", text: "The earliest day they can take you" },
+  { icon: Images, title: "Three matching pieces", text: "Work from their own portfolio in your style" },
+];
+const STUDIO_DETAILS = [
+  { icon: Palette, text: "Style and placement" }, { icon: Ruler, text: "Size" },
+  { icon: ImageIcon, text: "Concept and stencil" }, { icon: MapPin, text: "Where and when" },
+  { icon: Clock, text: "Quote window" },
+];
+const FAQS = [
+  ["Is Inqfy free for clients?", "Yes. Posting a request and receiving quotes is free, and Inqfy takes no commission on your tattoo — you pay the studio directly."],
+  ["Do I have to accept a quote?", "No. Let the window close, extend it, or close the request whenever you like. Quotes you already received stay available to accept."],
+  ["Will studios get my phone number?", "No. Studios only see your request. You open the WhatsApp chat yourself after accepting a quote."],
+  ["What if a studio writes “DM me for the price”?", "It can't be sent. Every quote must include a fixed price, a session plan, a start date and three portfolio pieces — vague pitches are blocked before submission."],
+  ["Can I get quotes from studios in another city?", "Yes. Choose “Near me”, “On a trip” or “Open to travel” when you post. Studios anywhere can reply; you decide."],
 ];
 
 export default function Home() {
   return (
-    <div className="space-y-20">
-      <section className="grid items-center gap-10 lg:grid-cols-[1.4fr_1fr]">
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-          <span className="stamp text-red-500 text-sm">Reverse marketplace · est. 2026</span>
-          <h1 className="mt-6 text-[clamp(2.8rem,6vw,5.75rem)] text-zinc-50">
-            Your sleeve costs
-            <br />
-            <span className="text-zinc-500 line-through decoration-red-600 decoration-[6px]">€3,800</span> in Dublin.
-            <br />
-            <span className="text-red-500">€1,170</span> in Istanbul.
-            <br />
-            Flight included.
+    <div className="space-y-24">
+      <section className="grid items-center gap-10 pt-8 lg:grid-cols-2 lg:gap-16 lg:pt-16">
+        <div>
+          <h1 className="font-display text-[clamp(2.5rem,5vw,4rem)] leading-[1.04] tracking-[-0.02em]">
+            Stop chasing tattoo studios. <span className="text-fg-2">Let them come to you.</span>
           </h1>
-          <p className="mt-6 max-w-xl text-lg text-zinc-400">
-            Post the design once. Studios worldwide bid a fixed price. Inqfy adds the airfare and shows
-            what you actually save — then gets out of the way.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Link href="/create">
-              <Button variant="violet" size="lg"><Sparkles className="h-5 w-5" /> Post a design</Button>
-            </Link>
-            <Link href={`/requests/${FLAGSHIP_REQUEST_ID}`}>
-              <Button variant="outline" size="lg">See a live bid war <ArrowRight className="h-4 w-4" /></Button>
-            </Link>
+          <p className="mt-6 max-w-[34rem] text-lg leading-7 text-fg-2">Describe the piece once. Studios that work in your style reply with a fixed price, a session plan, a start date and three matching pieces of their work. You compare, you pick, you talk.</p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/create"><Button size="lg">Post your tattoo</Button></Link>
+            <Link href={`/requests/${FLAGSHIP_REQUEST_ID}`}><Button variant="secondary" size="lg">See a live request</Button></Link>
           </div>
-          <div className="mt-6 w-full">
-            <SearchBar />
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, rotate: -1.5, y: 20 }}
-          animate={{ opacity: 1, rotate: -1.5, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="relative mx-auto w-full max-w-sm overflow-hidden rounded-sm border border-zinc-700 bg-[#121214] paper p-3 shadow-[8px_8px_0_0_#dc2626]"
-        >
-          <div className="relative aspect-[4/5] overflow-hidden">
-            <img
-              src="/img/sleeve-flickr-stiller-beobachter.jpg"
-              alt="Full sleeve tattoo"
-              className="h-full w-full object-cover grayscale contrast-125"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#121214] via-transparent to-transparent" />
-            <span className="absolute left-3 top-3 stamp text-xs text-zinc-100">Flash No. 001</span>
-          </div>
-          <div className="mt-3 flex items-end justify-between px-1">
-            <div>
-              <div className="font-display text-2xl leading-none text-zinc-100">Cyber-Irezumi Dragon</div>
-              <div className="text-xs text-zinc-500">Full sleeve · 4 live quotes</div>
-            </div>
-            <div className="text-right">
-              <div className="text-[10px] uppercase tracking-widest text-zinc-500">you save</div>
-              <div className="font-display text-3xl leading-none text-emerald-400">€2,630</div>
-            </div>
-          </div>
-        </motion.div>
-      </section>
-
-      <section className="rule-dashed pt-10">
-        <div className="mb-4 flex items-end justify-between gap-3">
-          <h2 className="font-display text-3xl text-zinc-100">Prices by city</h2>
-          <Link href="/cities" className="text-xs text-zinc-400 underline underline-offset-4 hover:text-white">All cities</Link>
         </div>
-        <div className="grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 sm:grid-cols-2 lg:grid-cols-5">
-          {CITIES.map((city) => (
-            <Link key={city.slug} href={`/cities/${city.slug}`} className="paper bg-[#121214] p-5 transition hover:bg-zinc-900">
-              <div className="flex items-center justify-between text-[11px] uppercase tracking-widest text-zinc-500">
-                <span>{city.name}</span>
-                {city.slug !== "dublin" && <Plane className="h-3.5 w-3.5" />}
-              </div>
-              <div className={`mt-2 font-display text-5xl leading-none ${city.slug === "dublin" ? "text-zinc-500 line-through decoration-red-600 decoration-4" : "text-zinc-50"}`}>
-                {eur(city.prices.sleeve + city.flightFromDublinEur)}
-              </div>
-              <div className="mt-1 text-xs text-zinc-500">
-                {city.slug === "dublin" ? "local baseline" : `incl. ${eur(city.flightFromDublinEur)} flight`}
-              </div>
-            </Link>
+        <HeroQuoteStack />
+      </section>
+      <LiveRequestsTeaser />
+      <section>
+        <h2 className="mb-6 font-display text-3xl">Every quote must include</h2>
+        <div className="grid overflow-hidden rounded-2xl border border-line bg-card sm:grid-cols-2 lg:grid-cols-4">
+          {QUOTE_REQUIREMENTS.map(({ icon: Icon, title, text }, index) => (
+            <div key={title} className={`p-6 ${index ? "border-t border-line sm:border-l sm:border-t-0" : ""} ${index === 2 ? "sm:border-l-0 lg:border-l" : ""}`}>
+              <Icon className="h-[18px] w-[18px] text-fg-3" />
+              <h3 className="mt-4 text-base font-medium">{title}</h3>
+              <p className="mt-1 text-sm text-fg-2">{text}</p>
+            </div>
           ))}
         </div>
-        <p className="mt-3 text-xs text-zinc-500">Full price tables include estimated roundtrip economy fares from Dublin.</p>
+        <p className="mt-3 text-[13px] text-fg-3">Vague “come in for a consultation” pitches are rejected before they reach you</p>
       </section>
-
-      <section className="grid gap-10 md:grid-cols-3">
-        {STEPS.map((s, i) => (
-          <motion.div key={s.n} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 * i }} className="border-t-2 border-zinc-200 pt-5">
-            <div className="font-display text-5xl leading-none text-red-500">{s.n}</div>
-            <h3 className="mt-3 font-display text-2xl tracking-wide text-zinc-50">{s.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-zinc-400">{s.text}</p>
-          </motion.div>
-        ))}
+      <section className="grid gap-8 md:grid-cols-3">
+        {STEPS.map((step) => <div key={step.n} className="border-t border-line-strong pt-5"><div className="font-mono text-xs text-fg-3">{step.n}</div><h3 className="mt-3 text-xl font-medium">{step.title}</h3><p className="mt-2 text-sm text-fg-2">{step.text}</p></div>)}
       </section>
+      <Card className="grid items-center gap-8 p-6 sm:p-8 lg:grid-cols-[1.2fr_1fr]">
+        <div><div className="text-[13px] text-fg-3">Run a studio?</div><h2 className="mt-3 font-display text-3xl">Requests in your style, brief already written</h2><p className="mt-3 text-fg-2">Open a request and you already know the design, placement, size, where and when. Send a complete quote in two minutes. 0% commission — clients pay you directly.</p><div className="mt-6 flex flex-wrap items-center gap-5"><Link href="/feed"><Button variant="secondary">Browse open requests</Button></Link><Link href="/artists" className="border-b border-line-strong text-sm text-fg-2">Studio membership</Link></div></div>
+        <div><div className="text-[13px] text-fg-3">What you see before quoting</div><ul className="mt-3">{STUDIO_DETAILS.map(({ icon: Icon, text }) => <li key={text} className="flex h-11 items-center gap-2.5 border-t border-line text-sm first:border-t-0"><Icon className="h-[18px] w-[18px] text-fg-3" />{text}</li>)}</ul></div>
+      </Card>
+      <section><h2 className="mb-4 font-display text-3xl">Questions</h2>{FAQS.map(([question, answer]) => <details key={question} className="group border-t border-line py-4 last:border-b"><summary className="flex cursor-pointer list-none items-center justify-between text-base font-medium">{question}<Plus className="h-[18px] w-[18px] text-fg-3 transition-transform group-open:rotate-45" /></summary><p className="mt-2 max-w-[40rem] text-fg-2">{answer}</p></details>)}</section>
     </div>
   );
 }
