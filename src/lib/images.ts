@@ -13,14 +13,12 @@ export const IMG = {
   realism: l("b057-andrea-afferni-realism-portrait-animal-tatt"),
   neoTrad: l("view-1-half-sleeve-tatoo"),
   sleeve2: u("1611501275019-9b5cda994e8d"),
-  back: l("irezumi-full-back"),
   studio: u("1527419105721-af1f23c86dec"),
   micro: l("celtic-knot-tattoo"),
   chest: l("man-chest-tattoo-monument-to-yuri-gagarin-astron"),
   arm: l("bellerophon-forearm-black-and-white-cover-up-tat"),
   dark: l("dlaffb-dark-letterin-abstracto-freehand-fusionad"),
   wave: l("colourful-back-tattoo"),
-  skull: l("man-with-a-full-back-tattoo-black-and-white-imag"),
   floral: u("1598371839696-5c5bb00bdc28"),
   minimal: l("small-icosihemidodecahedron"),
   shoulder: l("view-2-half-sleeve-tatoo"),
@@ -30,11 +28,9 @@ export const IMG = {
   ink: u("1550537687-c91072c4792d"),
   ornamental: l("dom-carter-butterfly-blackwork-tattoo"),
   machine: u("1565058379802-bbe93b2f703a"),
-  leg: l("man-with-a-full-back-christian-and-enlightenment"),
   neck: l("man-with-eagle-on-the-back-at-tattoo-convention"),
   artist: l("edoardo-tabacchi"),
   line: l("purple-haired-woman-with-arm-tattoo"),
-  snake: l("man-with-a-full-back-tattoo-color"),
   tiger: l("full-back-tattoo"),
   script: u("1542727365-19732a80dcfd", 600),
 };
@@ -51,10 +47,10 @@ export const AVATAR = {
 
 /** Curated concept art per style, used by the AI studio when no image API key is configured. */
 export const STYLE_CONCEPTS: Record<string, string[]> = {
-  "Irezumi / Japanese": [IMG.dragonSleeve, IMG.back, IMG.tiger, IMG.sleeve2],
+  "Irezumi / Japanese": [IMG.dragonSleeve, IMG.koi, IMG.tiger, IMG.sleeve2],
   "Fine Line": [IMG.fineLine, IMG.micro, IMG.portrait, IMG.minimal],
-  Blackwork: [IMG.blackwork, IMG.dark, IMG.skull, IMG.mandala],
-  Realism: [IMG.realism, IMG.arm, IMG.chest, IMG.leg],
+  Blackwork: [IMG.blackwork, IMG.dark, IMG.ornamental, IMG.mandala],
+  Realism: [IMG.realism, IMG.arm, IMG.chest, IMG.portrait],
   "Neo-Traditional": [IMG.neoTrad, IMG.floral, IMG.shoulder, IMG.wave],
   Geometric: [IMG.geometric, IMG.ornamental, IMG.hand, IMG.minimal],
 };
