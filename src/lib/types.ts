@@ -40,6 +40,7 @@ export interface TattooRequest {
   size: string;
   conceptImageUrl: string;
   stencilImageUrl: string;
+  referenceImageUrls?: string[];
   travelMode: TravelMode;
   targetDestination: string;
   closesAt?: number;

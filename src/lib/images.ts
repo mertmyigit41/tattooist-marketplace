@@ -5,7 +5,8 @@ const u = (id: string, w = 900) =>
 const l = (name: string) => `/img/${name}.jpg`;
 
 export const IMG = {
-  sisyphus: "/img/sisyphus-fiet.svg",
+  sisyphus: "/img/sisyphus-fiet.png",
+  refMeaCulpa: "/img/ref-mea-culpa.jpg",
   dragonSleeve: l("sleeve-flickr-stiller-beobachter"),
   koi: l("close-up-phoenix-full-sleeve-tattoo-by-maaika"),
   geometric: l("dom-carter-geometric-tattoo"),

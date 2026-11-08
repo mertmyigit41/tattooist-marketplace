@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Globe2, MapPin, Plane, Sparkles, Wand2 } from "lucide-react";
+import { ArrowRight, Globe2, MapPin, Plane, Sparkles, Wand2, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
 import { ImageToggle, StencilImage } from "@/components/ImageToggle";
@@ -30,6 +30,14 @@ function hash(s: string) {
   return h;
 }
 
+function parseReferenceUrls(value: string | null) {
+  return (value ?? "")
+    .split(",")
+    .map((url) => url.trim())
+    .filter((url) => url.startsWith("/img/") || url.startsWith("https://"))
+    .slice(0, 3);
+}
+
 export default function CreatePage() {
   return (
     <LiveRoleGate role="client">
@@ -48,6 +56,7 @@ function CreateContent() {
   const placementParam = searchParams.get("placement");
   const travelParam = searchParams.get("travel");
   const windowParam = searchParams.get("window");
+  const refsParam = searchParams.get("refs");
   const initialStyle =
     queryStyle && STYLES.some((candidate) => candidate === queryStyle)
       ? queryStyle
@@ -70,15 +79,17 @@ function CreateContent() {
     windowParam === "3" || windowParam === "7" || windowParam === "14"
       ? Number(windowParam)
       : 7;
+  const initialReferenceUrls = parseReferenceUrls(refsParam);
 
   return (
     <CreateForm
-      key={[queryStyle, imageParam, promptParam, placementParam, travelParam, windowParam].map((value) => value ?? "").join("|")}
+      key={[queryStyle, imageParam, promptParam, placementParam, travelParam, windowParam, refsParam].map((value) => value ?? "").join("|")}
       initialStyle={initialStyle}
       initialPrompt={initialPrompt}
       initialPlacement={initialPlacement}
       initialTravelMode={initialTravelMode}
       initialWindowDays={initialWindowDays}
+      initialReferenceUrls={initialReferenceUrls}
       imageParam={imageParam}
     />
   );
@@ -90,6 +101,7 @@ function CreateForm({
   initialPlacement,
   initialTravelMode,
   initialWindowDays,
+  initialReferenceUrls,
   imageParam,
 }: {
   initialStyle: string;
@@ -97,6 +109,7 @@ function CreateForm({
   initialPlacement: string;
   initialTravelMode: TravelMode;
   initialWindowDays: number;
+  initialReferenceUrls: string[];
   imageParam: string | null;
 }) {
   const router = useRouter();
@@ -113,6 +126,8 @@ function CreateForm({
   const [travelMode, setTravelMode] = useState<TravelMode>(initialTravelMode);
   const [destination, setDestination] = useState("Thailand - Nov 2026");
   const [windowDays, setWindowDays] = useState(initialWindowDays);
+  const [referenceUrls, setReferenceUrls] = useState(initialReferenceUrls);
+  const [referenceInput, setReferenceInput] = useState("");
   const [launching, setLaunching] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -122,6 +137,13 @@ function CreateForm({
     const short = p.length > 48 ? p.slice(0, 48).replace(/\s+\S*$/, "") + "…" : p;
     return `${placement} ${short.charAt(0).toUpperCase() + short.slice(1)}`;
   }, [prompt, placement]);
+
+  function addReference() {
+    const [url] = parseReferenceUrls(referenceInput);
+    if (!url || referenceUrls.length >= 3 || referenceUrls.includes(url)) return;
+    setReferenceUrls((current) => [...current, url]);
+    setReferenceInput("");
+  }
 
   async function generate() {
     if (!prompt.trim()) return;
@@ -156,6 +178,7 @@ function CreateForm({
         size: sizeFor(placement),
         conceptImageUrl: result.concept,
         stencilImageUrl: result.stencil,
+        ...(referenceUrls.length ? { referenceImageUrls: referenceUrls } : {}),
         travelMode,
         targetDestination: travelMode === "specific_destination" ? destination : "",
         closesAt: Date.now() + windowDays * DAY_MS,
@@ -296,6 +319,43 @@ function CreateForm({
                         placeholder='e.g. "Thailand - Nov 2026"'
                         className="mt-3 h-11 w-full rounded-[10px] border border-line bg-raised px-4 text-[15px] text-fg outline-none placeholder:text-fg-3 focus:border-fg-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                       />
+                    )}
+                  </div>
+
+                  <div>
+                    <div className="mb-2 text-sm font-medium text-fg">Style references (optional)</div>
+                    <div className="flex gap-2">
+                      <input
+                        value={referenceInput}
+                        onChange={(event) => setReferenceInput(event.target.value)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter") {
+                            event.preventDefault();
+                            addReference();
+                          }
+                        }}
+                        placeholder="Paste an image link"
+                        className="h-10 min-w-0 flex-1 rounded-[10px] border border-line bg-raised px-3 text-sm text-fg outline-none placeholder:text-fg-3 focus:border-fg-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                      />
+                      <Button variant="secondary" size="sm" onClick={addReference} disabled={referenceUrls.length >= 3}>Add</Button>
+                    </div>
+                    {referenceUrls.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {referenceUrls.map((url) => (
+                          <div key={url} className="relative">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={url} alt="" className="h-16 w-16 rounded-md border border-line object-cover" />
+                            <button
+                              type="button"
+                              aria-label="Remove style reference"
+                              onClick={() => setReferenceUrls((current) => current.filter((item) => item !== url))}
+                              className="absolute -right-1.5 -top-1.5 rounded-md border border-line bg-card p-0.5 text-fg-2 hover:text-fg"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
 

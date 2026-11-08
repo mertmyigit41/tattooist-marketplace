@@ -34,9 +34,9 @@ export function HeroQuoteStack() {
         className="grid gap-5 rounded-2xl border border-line bg-card p-5 sm:grid-cols-[200px_1fr]"
       >
         <div className="grid grid-cols-[96px_1fr] items-start gap-4 sm:block">
-          <div className="h-[116px] w-24 overflow-hidden rounded-md border border-line bg-stencil sm:h-[240px] sm:w-[200px]">
+          <div className="h-24 w-24 overflow-hidden rounded-md border border-line bg-stencil sm:h-[200px] sm:w-[200px]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={request.conceptImageUrl} alt="Stencil of Sisyphus pushing a boulder, ringed by a Latin motto" className="stencil h-full w-full object-cover" />
+            <img src={request.conceptImageUrl} alt="Stencil: Sisyphus pushing a ring of words up a slope" className="stencil h-full w-full object-cover" />
           </div>
           <div>
             <div className="text-[15px] font-medium leading-5 sm:mt-3">Forearm · Sisyphus &amp; a Latin motto</div>

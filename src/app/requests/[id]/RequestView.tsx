@@ -71,6 +71,7 @@ export function RequestView() {
     );
   const canAccept = !IS_LIVE || persona.id === request.clientId;
   const acceptingQuotes = isAcceptingQuotes(request, now);
+  const referenceImages = request.referenceImageUrls ?? [];
   const shortlisted = new Set(request.shortlistedBidIds ?? []);
   const hidden = new Set(request.hiddenBidIds ?? []);
   const ranked = canAccept
@@ -135,6 +136,24 @@ export function RequestView() {
             </div>
             <h1 className="mt-3 font-display text-2xl sm:text-3xl">{request.title}</h1>
             <p className="mt-2 text-fg-2">{request.prompt}</p>
+            {referenceImages.length > 0 && (
+              <div className="mt-4">
+                <div className="mb-2 text-xs text-fg-3">Style references</div>
+                <div className="flex flex-wrap gap-2">
+                  {referenceImages.map((url, index) => (
+                    <button
+                      key={url}
+                      type="button"
+                      onClick={() => setLb({ urls: referenceImages, index })}
+                      className="h-20 w-20 overflow-hidden rounded-md border border-line"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt="" className="h-full w-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-fg-2">

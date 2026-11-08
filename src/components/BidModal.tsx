@@ -168,6 +168,10 @@ function BidForm({
           alt=""
           className="h-16 w-16 rounded-lg object-cover"
         />
+        {request.referenceImageUrls?.map((url) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img key={url} src={url} alt="" className="h-12 w-12 rounded-md object-cover" />
+        ))}
         <div className="min-w-0 flex-1">
           <div className="truncate font-medium">{request.title}</div>
           <div className="text-xs text-fg-2">

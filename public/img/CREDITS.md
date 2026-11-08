@@ -5,4 +5,6 @@ Tattoo photography in this folder is from Wikimedia Commons under free licenses
 its name; see https://commons.wikimedia.org/wiki/File:<Original_Title> for the author
 and exact license. Remaining demo images are hotlinked from Unsplash.
 
-`sisyphus-fiet.svg` — original line drawing made for Inqfy (concept for the owner's request).
+`sisyphus-fiet.png` — the owner's own concept drawing for his request.
+
+`ref-mea-culpa.jpg` — style reference photo supplied by the owner for his request (tattoo by an unknown artist; shown only as a reference).
