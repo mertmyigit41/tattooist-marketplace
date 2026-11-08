@@ -8,3 +8,5 @@ and exact license. Remaining demo images are hotlinked from Unsplash.
 `sisyphus-fiet.png` — the owner's own concept drawing for his request.
 
 `ref-mea-culpa.jpg` — style reference photo supplied by the owner for his request (tattoo by an unknown artist; shown only as a reference).
+
+`hero-poster.jpg` — frame captured from the MotionSites Mindloop hero clip (https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260325_120549_0cd82c36-56b3-4dd9-b190-069cfc3a623f.mp4) used as the video poster.

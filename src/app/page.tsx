@@ -1,75 +1,131 @@
 "use client";
 
-import { CalendarDays, CalendarRange, Clock, Euro, Image as ImageIcon, Images, MapPin, Palette, Plus, Ruler } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { ArrowDown, ArrowUpRight, CalendarDays, CalendarRange, Euro, Images, Pause, Play, Plus } from "lucide-react";
 import Link from "next/link";
-import { HeroQuoteStack } from "@/components/HeroQuoteStack";
-import { LiveRequestsTeaser } from "@/components/LiveRequestsTeaser";
-import { Button, Card } from "@/components/ui";
 import { useShowcaseHref } from "@/lib/hooks";
 
+const VIDEOS = {
+  hero: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260325_120549_0cd82c36-56b3-4dd9-b190-069cfc3a623f.mp4",
+  mission: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260325_132944_a0d124bb-eaa1-4082-aa30-2310efb42b4b.mp4",
+  solution: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260325_125119_8e5ae31c-0021-4396-bc08-f7aebeb877a2.mp4",
+};
 const STEPS = [
-  { n: "01", title: "Post once", text: "Describe the piece, pick style and placement, get a concept and a clean stencil. One post instead of a dozen DMs." },
-  { n: "02", title: "Studios come to you", text: "Studios that work in your style reply with a fixed price, a session plan, a start date and three matching pieces. No chasing, no “DM for price”." },
-  { n: "03", title: "You pick, you talk", text: "Compare the quotes side by side, accept one and continue on WhatsApp. Inqfy takes 0% commission." },
+  ["01", "One brief", "Your idea, placement and references. Put it into words once, instead of starting the same conversation in a dozen inboxes."],
+  ["02", "Studios reply", "Studios see your request and send a complete quote with matching work. No chasing. No ‘DM for price’."],
+  ["03", "Your decision", "Compare the work, the plan and the price. Choose a studio when it feels right — or keep looking."],
 ];
-const QUOTE_REQUIREMENTS = [
-  { icon: Euro, title: "A fixed price", text: "A number, not “DM for price”" },
-  { icon: CalendarRange, title: "A session plan", text: "How many sessions, how long, in what order" },
-  { icon: CalendarDays, title: "A start date", text: "The earliest day they can take you" },
-  { icon: Images, title: "Three matching pieces", text: "Work from their own portfolio in your style" },
-];
-const STUDIO_DETAILS = [
-  { icon: Palette, text: "Style and placement" }, { icon: Ruler, text: "Size" },
-  { icon: ImageIcon, text: "Concept and stencil" }, { icon: MapPin, text: "Where and when" },
-  { icon: Clock, text: "Quote window" },
+const REQUIREMENTS = [
+  { icon: Euro, title: "A fixed price", text: "Know the number before you start a conversation." },
+  { icon: CalendarRange, title: "A session plan", text: "How many sessions, how long, and what to expect." },
+  { icon: CalendarDays, title: "A start date", text: "A real opening, not another waiting list." },
+  { icon: Images, title: "Matching work", text: "Three portfolio pieces to help you judge the fit." },
 ];
 const FAQS = [
-  ["Is Inqfy free for clients?", "Yes. Posting a request and receiving quotes is free, and Inqfy takes no commission on your tattoo — you pay the studio directly."],
-  ["Do I have to accept a quote?", "No. Let the window close, extend it, or close the request whenever you like. Quotes you already received stay available to accept."],
-  ["Will studios get my phone number?", "No. Studios only see your request. You open the WhatsApp chat yourself after accepting a quote."],
-  ["What if a studio writes “DM me for the price”?", "It can't be sent. Every quote must include a fixed price, a session plan, a start date and three portfolio pieces — vague pitches are blocked before submission."],
-  ["Can I get quotes from studios in another city?", "Yes. Choose “Near me”, “On a trip” or “Open to travel” when you post. Studios anywhere can reply; you decide."],
+  ["Is it free to post?", "Yes. Posting a request and receiving quotes is free. Inqfy takes no commission on your tattoo; you pay the studio directly."],
+  ["Do I have to accept a quote?", "No. You can extend the quote window, let it expire, or close your request. There is no obligation to book."],
+  ["Will studios get my phone number?", "No. You open the WhatsApp conversation yourself after accepting a quote."],
+  ["Can I include references?", "Yes. Add your concept and style references so studios can see both what you want and the kind of execution you like."],
 ];
+
+function Film({ src, className = "", poster }: { src: string; className?: string; poster?: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  const reduced = useReducedMotion();
+  const [paused, setPaused] = useState(false);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    const video = ref.current;
+    if (!video || reduced) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !paused) void video.play().catch(() => {});
+      else video.pause();
+    }, { threshold: 0.1 });
+    observer.observe(video);
+    return () => { observer.disconnect(); video.pause(); };
+  }, [paused, reduced]);
+  return (
+    <div className={`mind-film ${className}`}>
+      {!reduced && !failed && <video ref={ref} muted loop playsInline preload="none" poster={poster} aria-hidden="true" onError={() => setFailed(true)}><source src={src} type="video/mp4" /></video>}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      {(reduced || failed) && poster && <img src={poster} alt="" aria-hidden className="mind-film-poster" />}
+      {!reduced && !failed && <button type="button" aria-label={paused ? "Play background video" : "Pause background video"} className="mind-film-control" onClick={() => setPaused(!paused)}>{paused ? <Play size={14} /> : <Pause size={14} />}</button>}
+    </div>
+  );
+}
+
+function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
+  const reduced = useReducedMotion();
+  return <motion.div className={className} initial={reduced ? false : { opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.15 }} transition={{ duration: 0.6, delay, ease: "easeOut" }}>{children}</motion.div>;
+}
+
+function Manifesto() {
+  const ref = useRef<HTMLParagraphElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 85%", "end 45%"] });
+  const words = "Your next tattoo deserves more than an unanswered message. Leave the idea here. Let the right studios find it. Then choose the hands you trust.".split(" ");
+  return <p ref={ref} className="mind-manifesto">{words.map((word, i) => <Word key={i} word={word} progress={scrollYProgress} start={i / words.length} end={(i + 1) / words.length} />)}</p>;
+}
+
+function Word({ word, progress, start, end }: { word: string; progress: ReturnType<typeof useScroll>["scrollYProgress"]; start: number; end: number }) {
+  const opacity = useTransform(progress, [start, end], [0.18, 1]);
+  const reduced = useReducedMotion();
+  return <motion.span style={{ opacity: reduced ? 1 : opacity }}>{word}{" "}</motion.span>;
+}
 
 export default function Home() {
   const showcaseHref = useShowcaseHref();
   return (
-    <div className="space-y-24">
-      <section className="grid items-center gap-10 pt-8 lg:grid-cols-2 lg:gap-16 lg:pt-16">
-        <div>
-          <h1 className="font-display text-[clamp(2.5rem,5vw,4rem)] leading-[1.04] tracking-[-0.02em]">
-            Stop chasing tattoo studios. <span className="text-fg-2">Let them come to you.</span>
-          </h1>
-          <p className="mt-6 max-w-[34rem] text-lg leading-7 text-fg-2">Describe the piece once. Studios that work in your style reply with a fixed price, a session plan, a start date and three matching pieces of their work. You compare, you pick, you talk.</p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/create"><Button size="lg">Post your tattoo</Button></Link>
-            <Link href={showcaseHref}><Button variant="secondary" size="lg">{showcaseHref === "/feed" ? "Browse open requests" : "See a live request"}</Button></Link>
+    <div className="mindloop">
+      <section className="mind-hero" id="home">
+        <Film src={VIDEOS.hero} className="mind-hero-film" poster="/img/hero-poster.jpg" />
+        <div className="mind-hero-shade" />
+        <Reveal className="mind-hero-content">
+          <p className="mind-kicker">One idea. Your next tattoo.</p>
+          <h1>Let the right<br /><em>artists</em> come to you.</h1>
+          <p className="mind-subtitle">Stop sending the same message to every studio. Post your tattoo once. Receive complete quotes. Find your fit.</p>
+          <div className="mind-actions">
+            <Link href="/create" className="mind-primary">Post your tattoo <ArrowUpRight size={18} /></Link>
           </div>
-        </div>
-        <HeroQuoteStack />
+          <Link href={showcaseHref} className="mind-quiet">{showcaseHref === "/feed" ? "Explore open requests" : "See an open request"} <ArrowUpRight size={16} /></Link>
+        </Reveal>
+        <a href="#how-it-works" className="mind-scroll"><ArrowDown size={16} /><span>Less chasing. More creating.</span></a>
       </section>
-      <LiveRequestsTeaser />
-      <section>
-        <h2 className="mb-6 font-display text-3xl">Every quote must include</h2>
-        <div className="grid overflow-hidden rounded-2xl border border-line bg-card sm:grid-cols-2 lg:grid-cols-4">
-          {QUOTE_REQUIREMENTS.map(({ icon: Icon, title, text }, index) => (
-            <div key={title} className={`p-6 ${index ? "border-t border-line sm:border-l sm:border-t-0" : ""} ${index === 2 ? "sm:border-l-0 lg:border-l" : ""}`}>
-              <Icon className="h-[18px] w-[18px] text-fg-3" />
-              <h3 className="mt-4 text-base font-medium">{title}</h3>
-              <p className="mt-1 text-sm text-fg-2">{text}</p>
-            </div>
-          ))}
-        </div>
-        <p className="mt-3 text-[13px] text-fg-3">Vague “come in for a consultation” pitches are rejected before they reach you</p>
+
+      <section className="mind-section mind-how" id="how-it-works">
+        <Reveal><h2>The search can <em>change.</em><br />Start with your idea.</h2><p className="mind-section-intro">You shouldn’t need a spreadsheet of studios and a week of unanswered DMs to find the person for your next piece.</p></Reveal>
+        <div className="mind-steps">{STEPS.map(([n, title, text], i) => <Reveal key={n} delay={i * 0.08}><span className="mind-step-number">{n}</span><h3>{title}</h3><p>{text}</p></Reveal>)}</div>
+        <p className="mind-caption">One request instead of a dozen conversations.</p>
       </section>
-      <section className="grid gap-8 md:grid-cols-3">
-        {STEPS.map((step) => <div key={step.n} className="border-t border-line-strong pt-5"><div className="font-mono text-xs text-fg-3">{step.n}</div><h3 className="mt-3 text-xl font-medium">{step.title}</h3><p className="mt-2 text-sm text-fg-2">{step.text}</p></div>)}
+
+      <section className="mind-section mind-philosophy" id="philosophy">
+        <Film src={VIDEOS.mission} className="mind-orbit" />
+        <Manifesto />
+        <Reveal><p className="mind-section-intro">Not just a price. A style, an approach, a person. Inqfy puts the work and the plan in front of you, so the decision stays yours.</p></Reveal>
       </section>
-      <Card className="grid items-center gap-8 p-6 sm:p-8 lg:grid-cols-[1.2fr_1fr]">
-        <div><div className="text-[13px] text-fg-3">Run a studio?</div><h2 className="mt-3 font-display text-3xl">Requests in your style, brief already written</h2><p className="mt-3 text-fg-2">Open a request and you already know the design, placement, size, where and when. Send a complete quote in two minutes. 0% commission — clients pay you directly.</p><div className="mt-6 flex flex-wrap items-center gap-5"><Link href="/feed"><Button variant="secondary">Browse open requests</Button></Link><Link href="/artists" className="border-b border-line-strong text-sm text-fg-2">Studio membership</Link></div></div>
-        <div><div className="text-[13px] text-fg-3">What you see before quoting</div><ul className="mt-3">{STUDIO_DETAILS.map(({ icon: Icon, text }) => <li key={text} className="flex h-11 items-center gap-2.5 border-t border-line text-sm first:border-t-0"><Icon className="h-[18px] w-[18px] text-fg-3" />{text}</li>)}</ul></div>
-      </Card>
-      <section><h2 className="mb-4 font-display text-3xl">Questions</h2>{FAQS.map(([question, answer]) => <details key={question} className="group border-t border-line py-4 last:border-b"><summary className="flex cursor-pointer list-none items-center justify-between text-base font-medium">{question}<Plus className="h-[18px] w-[18px] text-fg-3 transition-transform group-open:rotate-45" /></summary><p className="mt-2 max-w-[40rem] text-fg-2">{answer}</p></details>)}</section>
+
+      <section className="mind-section mind-solution" id="quotes">
+        <Reveal><p className="mind-kicker">Clarity before commitment</p><h2>A little less guessing.<br /><em>A complete quote.</em></h2></Reveal>
+        <Film src={VIDEOS.solution} className="mind-wide-film" />
+        <div className="mind-features">{REQUIREMENTS.map(({ icon: Icon, title, text }, i) => <Reveal key={title} delay={i * 0.06}><Icon size={20} strokeWidth={1.5} /><h3>{title}</h3><p>{text}</p></Reveal>)}</div>
+      </section>
+
+      <section className="mind-section mind-real" id="the-first-request">
+        <Reveal className="mind-real-grid">
+          <div className="mind-concept liquid-glass">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/img/sisyphus-fiet.png" alt="Sisyphus pushing a ring of Latin lettering uphill — Mert’s tattoo concept" loading="lazy" />
+          </div>
+          <div><p className="mind-kicker">The idea behind Inqfy</p><h2>A real search.<br /><em>Mine, actually.</em></h2><p className="mind-real-copy">I’m looking for an artist for this Sisyphus piece. The ring of words is the boulder; the execution should feel like a loose ink drawing. Instead of sending another round of DMs, I built a place to leave the brief.</p><p className="mind-real-copy">The concept is real. The search is still open.</p><Link href={showcaseHref} className="mind-text-link">Explore requests <ArrowUpRight size={18} /></Link></div>
+        </Reveal>
+      </section>
+
+      <section className="mind-section mind-faq"><Reveal><h2>Before you <em>begin.</em></h2></Reveal><div>{FAQS.map(([q, a]) => <details key={q}><summary>{q}<Plus size={18} /></summary><p>{a}</p></details>)}</div></section>
+
+      <section className="mind-cta">
+        <Film src={VIDEOS.hero} className="mind-cta-film" poster="/img/hero-poster.jpg" />
+        <div className="mind-cta-shade" />
+        <Reveal className="mind-cta-content"><span className="mind-circles" aria-hidden="true"><span /></span><h2>Your next piece<br /><em>starts here.</em></h2><p>Bring the idea. Let the conversation come to you.</p><div className="mind-cta-actions"><Link href="/create" className="mind-primary">Post your tattoo <ArrowUpRight size={18} /></Link><Link href="/feed" className="mind-secondary liquid-glass">I’m a tattoo artist</Link></div></Reveal>
+      </section>
     </div>
   );
 }

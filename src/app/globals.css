@@ -44,3 +44,94 @@ body {
 * { scrollbar-width: thin; scrollbar-color: #3b3833 transparent; }
 
 input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: .7; }
+
+body:has(.mindloop) { background: #000; color: #fff; }
+body:has(.mindloop) > div { background: #000; }
+body:has(.mindloop) main { max-width: none; padding: 0; }
+body:has(.mindloop) header { background: rgb(0 0 0 / .82); border-color: rgb(255 255 255 / .1); }
+body:has(.mindloop) footer { background: #000; color: #a6a6a6; }
+.mindloop { --color-fg: #fff; --color-fg-2: #a6a6a6; --color-fg-3: #a6a6a6; --color-page: #000; --color-card: #0d0d0d; --color-accent: #fff; font-family: var(--font-geist-sans), sans-serif; overflow: clip; background: #000; color: #fff; }
+.mindloop h1, .mindloop h2 { font-family: var(--font-geist-sans), sans-serif; font-weight: 500; letter-spacing: -.045em; }
+.mindloop em { font-family: var(--font-fraunces), Georgia, serif; font-weight: 400; }
+.mindloop a:focus-visible, .mindloop button:focus-visible, .mindloop summary:focus-visible { outline: 2px solid #fff; outline-offset: 6px; }
+.liquid-glass { background: rgb(255 255 255 / .01); background-blend-mode: luminosity; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border: none; box-shadow: inset 0 1px 1px rgb(255 255 255 / .1); position: relative; overflow: hidden; }
+.liquid-glass::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.4px; background: linear-gradient(180deg, rgb(255 255 255 / .45), rgb(255 255 255 / .15) 20%, transparent 40%, transparent 60%, rgb(255 255 255 / .15) 80%, rgb(255 255 255 / .45)); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+.mind-film { position: relative; background: #080808; overflow: hidden; }
+.mind-film video { height: 100%; width: 100%; object-fit: cover; filter: grayscale(1); }
+.mind-film img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
+.mind-film-control { position: absolute; bottom: 24px; right: 24px; z-index: 5; width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid rgb(255 255 255 / .25); border-radius: 50%; background: rgb(0 0 0 / .5); color: #fff; }
+.mind-hero { min-height: min(960px, calc(100svh - 64px)); position: relative; display: grid; place-items: center; padding: 112px 24px 144px; isolation: isolate; }
+.mind-hero-film, .mind-cta-film { position: absolute; inset: 0; z-index: -3; }
+.mind-hero-shade { position: absolute; inset: 0; z-index: -2; background: linear-gradient(180deg, rgb(0 0 0 / .12), rgb(0 0 0 / .25) 50%, #000); pointer-events: none; }
+.mind-hero-content { text-align: center; max-width: 1000px; }
+.mind-kicker { font-size: 12px; line-height: 20px; letter-spacing: .08em; color: #a6a6a6; margin-bottom: 24px; }
+.mind-hero h1 { font-size: clamp(48px, 7.2vw, 104px); line-height: 1.04; }
+.mind-subtitle { max-width: 580px; margin: 28px auto 0; font-size: 18px; line-height: 28px; color: #f0f2f4; text-wrap: pretty; }
+.mind-actions { display: flex; justify-content: center; margin-top: 36px; }
+.mind-primary, .mind-secondary { display: inline-flex; justify-content: center; align-items: center; gap: 12px; min-height: 48px; padding: 12px 24px; border-radius: 999px; font-size: 14px; font-weight: 500; transition: transform .18s ease-out, background-color .18s ease-out; }
+.mind-primary { background: #fff; color: #000; }
+.mind-primary:hover { background: #ddd; transform: translateY(-2px); }
+.mind-primary:active { transform: scale(.98); }
+.mind-secondary { color: #fff; }
+.mind-quiet { margin-top: 24px; display: inline-flex; gap: 8px; align-items: center; font-size: 13px; color: #bbb; }
+.mind-quiet:hover { color: #fff; }
+.mind-scroll { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; white-space: nowrap; font-size: 12px; color: #999; }
+.mind-section { width: min(1200px, 100%); margin-inline: auto; padding: 128px 48px; }
+.mind-section h2, .mind-cta h2 { font-size: clamp(40px, 5.5vw, 76px); line-height: 1.08; }
+.mind-how { padding-top: 192px; text-align: center; }
+.mind-section-intro { font-size: 18px; line-height: 29px; max-width: 660px; margin: 28px auto 0; color: #a6a6a6; }
+.mind-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 56px; text-align: left; margin-top: 96px; }
+.mind-step-number { display: flex; align-items: center; justify-content: center; width: 80px; height: 80px; border: 1px solid #333; border-radius: 50%; color: #bbb; font-family: var(--font-geist-mono), monospace; font-size: 16px; margin-bottom: 32px; box-shadow: inset 0 0 0 10px #090909; }
+.mind-steps h3, .mind-features h3 { font-size: 16px; font-weight: 500; margin-bottom: 12px; }
+.mind-steps p, .mind-features p { color: #a6a6a6; font-size: 14px; line-height: 24px; }
+.mind-caption { color: #999; font-size: 13px; margin-top: 64px; }
+.mind-philosophy { padding-top: 0; text-align: center; }
+.mind-orbit { width: min(660px, 100%); aspect-ratio: 1; margin: 0 auto 64px; background: #000; }
+.mind-manifesto { font-size: clamp(28px, 3.8vw, 52px); line-height: 1.35; letter-spacing: -.025em; font-weight: 500; text-align: left; }
+.mind-manifesto span { display: inline; }
+.mind-philosophy .mind-section-intro { text-align: left; margin-left: 0; }
+.mind-solution { border-top: 1px solid #222; }
+.mind-wide-film { aspect-ratio: 3 / 1; border-radius: 16px; margin: 48px 0; }
+.mind-features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; }
+.mind-features svg { color: #999; margin-bottom: 24px; }
+.mind-real { border-top: 1px solid #222; }
+.mind-real-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 80px; align-items: center; }
+.mind-concept { padding: 24px; border-radius: 24px; }
+.mind-concept img { display: block; width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 12px; background: #f4f5f6; filter: grayscale(1); }
+.mind-real-copy { margin-top: 24px; color: #a6a6a6; font-size: 16px; line-height: 27px; }
+.mind-text-link { display: inline-flex; align-items: center; gap: 12px; margin-top: 32px; font-size: 14px; padding-bottom: 8px; border-bottom: 1px solid #555; }
+.mind-faq { border-top: 1px solid #222; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; }
+.mind-faq details { border-bottom: 1px solid #222; padding: 24px 0; }
+.mind-faq details:first-child { padding-top: 0; }
+.mind-faq summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 15px; }
+.mind-faq summary::-webkit-details-marker { display: none; }
+.mind-faq details p { margin-top: 16px; font-size: 14px; line-height: 24px; color: #a6a6a6; }
+.mind-faq details[open] summary svg { transform: rotate(45deg); }
+.mind-cta { isolation: isolate; position: relative; min-height: 600px; padding: 128px 24px; display: grid; place-items: center; border-top: 1px solid #222; }
+.mind-cta-shade { position: absolute; inset: 0; z-index: -2; background: rgb(0 0 0 / .6); pointer-events: none; }
+.mind-cta-content { text-align: center; }
+.mind-circles { width: 40px; height: 40px; border: 1px solid #999; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 32px; }
+.mind-circles > span { width: 20px; height: 20px; border: 1px solid #999; border-radius: 50%; }
+.mind-cta-content > p { font-size: 16px; color: #aaa; margin-top: 24px; }
+.mind-cta-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 32px; }
+@media (max-width: 767px) {
+  .mind-hero { min-height: 740px; padding: 96px 20px 112px; }
+  .mind-hero h1 { font-size: clamp(44px, 9vw, 64px); }
+  .mind-subtitle { font-size: 16px; line-height: 26px; }
+  .mind-actions .mind-primary { width: 100%; max-width: 360px; white-space: nowrap; }
+  .mind-primary { padding-inline: 18px; }
+  .mind-section { padding: 80px 24px; }
+  .mind-how { padding-top: 112px; }
+  .mind-steps { grid-template-columns: 1fr; gap: 40px; margin-top: 56px; }
+  .mind-step-number { width: 56px; height: 56px; margin-bottom: 20px; }
+  .mind-features { grid-template-columns: 1fr 1fr; gap: 32px 24px; }
+  .mind-real-grid, .mind-faq { grid-template-columns: 1fr; gap: 40px; }
+  .mind-orbit { margin-bottom: 40px; }
+  .mind-wide-film { aspect-ratio: 16 / 9; }
+  .mind-concept { padding: 16px; }
+  .mind-cta { min-height: 540px; padding-block: 96px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mindloop *, .mindloop *::before { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+  .mind-manifesto span { opacity: 1 !important; }
+}
