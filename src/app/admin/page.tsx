@@ -4,12 +4,14 @@ import Link from "next/link";
 import { useState } from "react";
 import { Check, ShieldCheck, Trash2 } from "lucide-react";
 import { Badge, Button, Card, CountryTag, Spinner } from "@/components/ui";
+import { closeRequest, deleteRequest } from "@/lib/actions";
 import { useAuth } from "@/lib/auth";
 import { isAdminUser } from "@/lib/admin";
 import { col, IS_LIVE } from "@/lib/mode";
 import { getDb } from "@/lib/firebase";
-import { useProfiles } from "@/lib/hooks";
-import type { Profile } from "@/lib/types";
+import { useBidCounts, useProfiles, useRequests } from "@/lib/hooks";
+import type { Profile, TattooRequest } from "@/lib/types";
+import { timeAgo } from "@/lib/utils";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 
 type StudioApprovalRowProps = {
@@ -88,8 +90,64 @@ function StudioApprovalRow({
   );
 }
 
+function RequestAdminRow({
+  request,
+  quoteCount,
+  busy,
+  error,
+  onClose,
+  onDelete,
+}: {
+  request: TattooRequest;
+  quoteCount: number;
+  busy: boolean;
+  error?: string;
+  onClose: (request: TattooRequest) => void;
+  onDelete: (request: TattooRequest, quoteCount: number) => void;
+}) {
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-4 rounded-xl border border-line bg-card p-4">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={request.conceptImageUrl} alt="" className="h-12 w-12 shrink-0 rounded-md object-cover" />
+          <div className="min-w-0">
+            <Link href={`/requests/${request.id}`} className="line-clamp-1 text-sm font-medium hover:underline">
+              {request.title}
+            </Link>
+            <p className="mt-1 text-xs text-fg-3">
+              {request.clientName} · {request.clientCity} · {request.style} · {request.bodyPart} · posted {timeAgo(request.createdAt)}
+            </p>
+          </div>
+        </div>
+        <div className="flex shrink-0 items-center gap-3">
+          {request.status === "booked" ? (
+            <Badge className="border-positive/30 bg-positive/10 text-positive">Booked</Badge>
+          ) : request.status === "closed" ? (
+            <Badge className="border-line text-fg-3">Closed</Badge>
+          ) : (
+            <Badge>Open</Badge>
+          )}
+          <span className="font-mono text-xs text-fg-3">{quoteCount} quotes</span>
+        </div>
+        <div className="flex shrink-0 gap-2">
+          {request.status === "open" && (
+            <Button variant="ghost" size="sm" disabled={busy} onClick={() => onClose(request)}>Close</Button>
+          )}
+          <Button variant="ghost" size="sm" className="text-negative hover:text-negative" disabled={busy} onClick={() => onDelete(request, quoteCount)}>
+            <Trash2 className="h-3.5 w-3.5" /> Delete
+          </Button>
+        </div>
+      </div>
+      {error && <p role="alert" className="mt-2 text-xs text-negative">{error}</p>}
+    </div>
+  );
+}
+
 function AdminDashboard() {
   const { profiles, loading } = useProfiles("artist");
+  const { requests, loading: requestsLoading } = useRequests();
+  const { counts } = useBidCounts();
   const [busyId, setBusyId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const pending = profiles.filter((profile) => profile.approved === false);
@@ -126,8 +184,39 @@ function AdminDashboard() {
     }
   }
 
-  if (loading) {
-    return <div className="flex items-center justify-center gap-2 py-24 text-fg-3"><Spinner /> Loading studios…</div>;
+  async function closeManagedRequest(request: TattooRequest) {
+    setBusyId(request.id);
+    setErrors((current) => ({ ...current, [request.id]: "" }));
+    try {
+      await closeRequest(request.id);
+    } catch (cause) {
+      setErrors((current) => ({
+        ...current,
+        [request.id]: cause instanceof Error ? cause.message : "Could not close request.",
+      }));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function removeRequest(request: TattooRequest, quoteCount: number) {
+    if (!window.confirm(`Delete "${request.title}" and its ${quoteCount} quote(s)?`)) return;
+    setBusyId(request.id);
+    setErrors((current) => ({ ...current, [request.id]: "" }));
+    try {
+      await deleteRequest(request.id);
+    } catch (cause) {
+      setErrors((current) => ({
+        ...current,
+        [request.id]: cause instanceof Error ? cause.message : "Could not delete request.",
+      }));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  if (loading || requestsLoading) {
+    return <div className="flex items-center justify-center gap-2 py-24 text-fg-3"><Spinner /> Loading admin data…</div>;
   }
 
   return (
@@ -181,6 +270,30 @@ function AdminDashboard() {
                 error={errors[profile.id]}
                 onApproval={setApproval}
                 onDelete={removeProfile}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="space-y-4">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="text-xl font-medium">Requests</h2>
+          <span className="font-mono text-xs text-fg-3">{requests.length} total</span>
+        </div>
+        {requests.length === 0 ? (
+          <p className="rounded-2xl border border-line p-6 text-sm text-fg-3">No requests yet</p>
+        ) : (
+          <div className="space-y-3">
+            {requests.map((request) => (
+              <RequestAdminRow
+                key={request.id}
+                request={request}
+                quoteCount={counts[request.id] ?? 0}
+                busy={busyId !== null}
+                error={errors[request.id]}
+                onClose={closeManagedRequest}
+                onDelete={removeRequest}
               />
             ))}
           </div>

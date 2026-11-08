@@ -1,9 +1,13 @@
 import {
   arrayRemove,
   arrayUnion,
+  collection,
   doc,
+  getDocs,
+  query,
   setDoc,
   updateDoc,
+  where,
   writeBatch,
 } from "firebase/firestore";
 import { getDb } from "./firebase";
@@ -62,6 +66,17 @@ export async function closeRequest(requestId: string) {
   await updateDoc(doc(getDb(), col("requests"), requestId), {
     status: "closed",
   });
+}
+
+export async function deleteRequest(requestId: string) {
+  const db = getDb();
+  const bids = await getDocs(
+    query(collection(db, col("bids")), where("requestId", "==", requestId)),
+  );
+  const batch = writeBatch(db);
+  bids.docs.forEach((bid) => batch.delete(bid.ref));
+  batch.delete(doc(db, col("requests"), requestId));
+  await batch.commit();
 }
 
 export async function extendQuoteWindow(

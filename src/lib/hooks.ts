@@ -10,8 +10,10 @@ import {
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { getDb } from "./firebase";
-import { col } from "./mode";
+import { col, IS_LIVE } from "./mode";
+import { FLAGSHIP_REQUEST_ID } from "./seed";
 import type { Bid, Profile, TattooRequest } from "./types";
+import { isAcceptingQuotes } from "./utils";
 
 /** Re-renders every `intervalMs` with the current epoch ms; use instead of Date.now() in render. */
 export function useNow(intervalMs = 60_000) {
@@ -34,6 +36,15 @@ export function useRequests() {
     });
   }, []);
   return { requests, loading };
+}
+
+/** Where the landing's "see a live request" should go: the demo flagship in demo mode, the newest open live request (or the feed) in live mode. */
+export function useShowcaseHref() {
+  const { requests } = useRequests();
+  if (!IS_LIVE) return `/requests/${FLAGSHIP_REQUEST_ID}`;
+  const request =
+    requests.find((item) => isAcceptingQuotes(item)) ?? requests[0];
+  return request ? `/requests/${request.id}` : "/feed";
 }
 
 export function useRequest(id: string | undefined) {

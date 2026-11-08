@@ -1,9 +1,11 @@
+"use client";
+
 import { CalendarDays, CalendarRange, Clock, Euro, Image as ImageIcon, Images, MapPin, Palette, Plus, Ruler } from "lucide-react";
 import Link from "next/link";
 import { HeroQuoteStack } from "@/components/HeroQuoteStack";
 import { LiveRequestsTeaser } from "@/components/LiveRequestsTeaser";
 import { Button, Card } from "@/components/ui";
-import { FLAGSHIP_REQUEST_ID } from "@/lib/seed";
+import { useShowcaseHref } from "@/lib/hooks";
 
 const STEPS = [
   { n: "01", title: "Post once", text: "Describe the piece, pick style and placement, get a concept and a clean stencil. One post instead of a dozen DMs." },
@@ -30,6 +32,7 @@ const FAQS = [
 ];
 
 export default function Home() {
+  const showcaseHref = useShowcaseHref();
   return (
     <div className="space-y-24">
       <section className="grid items-center gap-10 pt-8 lg:grid-cols-2 lg:gap-16 lg:pt-16">
@@ -40,7 +43,7 @@ export default function Home() {
           <p className="mt-6 max-w-[34rem] text-lg leading-7 text-fg-2">Describe the piece once. Studios that work in your style reply with a fixed price, a session plan, a start date and three matching pieces of their work. You compare, you pick, you talk.</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/create"><Button size="lg">Post your tattoo</Button></Link>
-            <Link href={`/requests/${FLAGSHIP_REQUEST_ID}`}><Button variant="secondary" size="lg">See a live request</Button></Link>
+            <Link href={showcaseHref}><Button variant="secondary" size="lg">{showcaseHref === "/feed" ? "Browse open requests" : "See a live request"}</Button></Link>
           </div>
         </div>
         <HeroQuoteStack />

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import Link from "next/link";
 import { LiveDot, CountryTag } from "@/components/ui";
-import { useNow } from "@/lib/hooks";
+import { useNow, useShowcaseHref } from "@/lib/hooks";
 import { FLAGSHIP_REQUEST_ID, SEED_BIDS, SEED_REQUESTS } from "@/lib/seed";
 import { eur, formatDuration } from "@/lib/utils";
 
@@ -21,11 +21,12 @@ function startDate(value: string) {
 
 export function HeroQuoteStack() {
   const now = useNow();
+  const showcaseHref = useShowcaseHref();
   if (!request) return null;
   const closes = request.closesAt ? formatDuration(request.closesAt - now) : "—";
 
   return (
-    <Link href={`/requests/${FLAGSHIP_REQUEST_ID}`} className="block">
+    <Link href={showcaseHref} className="block">
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
